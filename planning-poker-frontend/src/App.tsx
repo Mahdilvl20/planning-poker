@@ -9,9 +9,9 @@ function App() {
   return (
       <div>
 
-      {/*<Functionalcard title="poker" values='0'/>
+      <Functionalcard title="poker" values='0'/>
       <UserBadge name="poker" score={0} />
-      <UserBadge/>*/}
+      <UserBadge/>
           <ParentDemo/>
       </div>
   )
