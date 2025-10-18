@@ -10,6 +10,7 @@ function App() {
 
       <Functionalcard title="poker" values='0'/>
       <UserBadge name="poker" score={0} />
+      <UserBadge/>
       </div>
   )
 }
