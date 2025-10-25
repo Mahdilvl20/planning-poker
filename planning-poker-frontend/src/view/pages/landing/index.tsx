@@ -1,10 +1,18 @@
-import {Box,Typography} from "@mui/material"
+
+import Card from "../../../example/components/Card.tsx"
+import ResultModal from "../../../example/components/ResultModal.tsx"
+import {useState} from "react";
 
 const LandingPage=()=>{
-   return (
-       <Box sx={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}}>
-            <Typography variant={'h1'}>salam</Typography>
-       </Box>
+   const [open,setOpen]=useState(false)
+    return (
+        <div>
+       <Card
+           title={"login/signup"}
+           onClick={()=>setOpen(true)}
+       />
+        <ResultModal open={open} resultText={"you click"} onClose={()=>setOpen(false)}/>
+        </div>
    )
 
 }
