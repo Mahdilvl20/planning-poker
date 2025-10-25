@@ -1,18 +1,24 @@
-import { Card } from '@mui/material';
+import { Box } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 
 const Loadable = () => (
-    <Card
+    <Box
         sx={{
+
             height: '100vh',
             display: 'flex',
-            justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: 'transparent',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            margin: 0,
+            padding: 0,
+            background:'rgba(0, 0, 0, 0.3)',
+            backdropFilter:'blur(15px)',
+            webkitBackdropFilter:'blur(15px)',
         }}
     >
             <CircularProgress />
-    </Card>
+    </Box>
 );
 
 export default Loadable;

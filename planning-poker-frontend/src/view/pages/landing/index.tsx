@@ -1,13 +1,15 @@
 
-import Card from "../../../example/components/Card.tsx"
+import ButtonLog from "../../../example/components/Card.tsx"
 import ResultModal from "../../../example/components/ResultModal.tsx"
 import {useState} from "react";
 
 const LandingPage=()=>{
    const [open,setOpen]=useState(false)
     return (
-        <div>
-       <Card
+        <div style={{
+            padding:50,
+        }}>
+       <ButtonLog
            title={"login/signup"}
            onClick={()=>setOpen(true)}
        />

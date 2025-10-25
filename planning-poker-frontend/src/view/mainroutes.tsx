@@ -6,12 +6,16 @@ import MainLayout from "./pages/MainLayout";
 
 
 const LandingPage = lazy(() => import("./pages/landing/index.tsx"));
-
+const CreateRoom=lazy(()=>import("./pages/createRoom/index.tsx"));
 
 const mainRoutes =createBrowserRouter ([
     {
         path: "/",
-        element: <MainLayout />,
+        element: (
+            <Loader>
+                <MainLayout/>
+            </Loader>
+        ),
         children:[
             {
                 index:true,
@@ -22,10 +26,11 @@ const mainRoutes =createBrowserRouter ([
                 )
             },
             {
+                index:false,
                 path:'/tt',
                 element:(
                     <Loader>
-                        <LandingPage/>
+                        <CreateRoom/>
                     </Loader>
                 )
             },

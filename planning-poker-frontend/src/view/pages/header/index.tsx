@@ -1,11 +1,37 @@
-import {Box,Typography} from "@mui/material"
+import {Box,Typography,Card} from "@mui/material"
+import LOGO from "../../../assets/LOGO.png"
+import ButtonLog from "../../../example/components/Card.tsx"
+import {useState} from "react";
+
 
 const Header=()=>{
+    const [open,setOpen]=useState(false)
     return(
-
-            <Box sx={{display:'flex',justifyContent:'center',backgroundColor:'#fff',borderBottomRightRadius:'10px',borderBottomLeftRadius:'10px'}}>
-                <Typography variant={'caption'} fontSize={'larger'}>Planning Poker</Typography>
-            </Box>
+            <Card sx={{display:'flex',
+                justifyContent: {md:'space-between',xs:'center'},
+                backgroundColor:'#50589C',
+                borderBottomRightRadius:'10px',
+                alignItems: 'center',
+                position:'relative',
+                width:'100%',
+            }}>
+                <Box sx={{
+                        height:'9vh',
+                }}>
+                <img src={LOGO} style={{height:'10vh'}} alt={'logo'}/>
+                </Box>
+                <Box sx={{
+                    display:{xs:'rows',md:'flex'}
+                }}>
+                    <Typography component="h1" variant="h5">Planning poKer</Typography>
+                </Box>
+                <Box sx={{
+                    m:2,
+                    display:{xs:'none',md:'flex'}
+                }}>
+                    <ButtonLog title={"login/signup"} onClick={()=>setOpen(true)}/>
+                </Box>
+            </Card>
 
     )
 }

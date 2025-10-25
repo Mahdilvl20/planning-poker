@@ -14,6 +14,4 @@ export const pokerStore = create((set)=>({
 
     resetRound:()=>({selectedCard:{},revealed:false}),
 
-
-
 }));
