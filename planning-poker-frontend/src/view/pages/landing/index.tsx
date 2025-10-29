@@ -18,11 +18,11 @@ const LandingPage=()=>{
                mt:'45px',
                display: 'flex',
                justifyContent:'center',
+
            }}>
-               <Typography variant="h5" fontSize={'100px'} color={'white'} fontWeight={'bolder'}>Planning poKer</Typography>
+               <Typography fontSize={'100px'} color={'white'} fontWeight={'bolder'} sx={{fontSize:{xs:70,sm:100}}}>Planning poKer</Typography>
            </Box>
            <Box sx={{
-
                display:"flex",
                justifyContent:'center',
                mt:'45px',
@@ -30,12 +30,15 @@ const LandingPage=()=>{
                 <Box sx={{
                     pl:5,
                     pr:5,
+                    pt:1,
+                    pb:1,
                     backgroundColor:'#6E8CFB',
                     borderRadius:'9px',
                     display: 'flex',
+                    flexDirection:{xs:'column',sm:'row'},
                     alignItems: 'center',
                     justifyContent:'space-between',
-                    gap:5,
+                    gap: {xs:0,sm:5},
                 }}>
                 <Button variant={'contained'} onClick={()=>setOpen(true)} sx={{fontWeight:'bold',borderRadius:'25px',m:1}}>Create Room</Button>
                     <TextField
@@ -56,7 +59,7 @@ const LandingPage=()=>{
                             m: 1,
                             borderRadius: '25px',
                             backgroundColor: '#D9D9D9',
-                            width: '650px',
+                            width: {xs:'100%',sm:'650px'},
                             '& .MuiOutlinedInput-root': {
                                 '& fieldset': { borderRadius: '25px' },
                             },

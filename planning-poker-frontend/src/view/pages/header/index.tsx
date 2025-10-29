@@ -5,6 +5,7 @@ import {useState} from "react";
 
 
 const Header=()=>{
+    //@ts-ignore
     const [open,setOpen]=useState(false)
     return(
             <Card sx={{display:'flex',
