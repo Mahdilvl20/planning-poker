@@ -1,8 +1,7 @@
 import {Card,Box,Typography,Button,TextField,InputAdornment} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 
-import ButtonLog from "../../../example/components/Card.tsx"
-import ResultModal from "../../../example/components/ResultModal.tsx"
+import Indexoptions from "../Create Room Options/indexOptions.tsx";
 import {useState} from "react";
 
 const LandingPage=()=>{
@@ -14,6 +13,7 @@ const LandingPage=()=>{
            border:'none',
            boxShadow:'none',
        }}>
+
            <Box sx={{
                mt:'45px',
                display: 'flex',
@@ -47,7 +47,7 @@ const LandingPage=()=>{
                             input: {
                                 startAdornment: (
                                     <InputAdornment position="start">
-                                        <SearchIcon />
+                                        <SearchIcon/>
                                     </InputAdornment>
                                 ),
                             },
@@ -65,7 +65,8 @@ const LandingPage=()=>{
                     <Button variant={'text'} disabled={!values.trim()} sx={{color:'white',fontWeight:'bold'}}>join</Button>
                 </Box>
            </Box>
-           <ResultModal open={open} onClose={()=>setOpen(false)} resultText={"test"}/>
+           {/*<ResultModal open={open} onClose={()=>setOpen(false)} resultText={"test"}/>*/}
+           <Indexoptions open={open} onClose={()=>setOpen(false)}/>
        </Card>
    )
 
