@@ -1,7 +1,7 @@
 import {Box,Button} from "@mui/material";
 import CloseIcon from '@mui/icons-material/Close';
 
-function Indexoptions({open,onClose}:{open:boolean,onClose:()=>void}) {
+function Indexoptions({open,onClose,onOpenCreate}:{open:boolean,onClose:()=>void,onOpenCreate:()=>void  }) {
     if (!open) return null;
 
     return (
@@ -42,7 +42,10 @@ function Indexoptions({open,onClose}:{open:boolean,onClose:()=>void}) {
                         }}} > test</Button>
                     <Button variant={'contained'} sx={{mb:2,borderRadius:'0px',backgroundColor:'transparent',color:'black',boxShadow:'none','&:hover':{
                         fontWeight:'bold',
-                        }}}> test</Button>
+                        }}}
+                            onClick={onOpenCreate}>
+                        Create Room link
+                    </Button>
 
             </Box>
         </Box>

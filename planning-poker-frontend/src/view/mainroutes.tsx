@@ -6,7 +6,6 @@ import MainLayout from "./pages/MainLayout";
 
 
 const LandingPage = lazy(() => import("./pages/landing/index.tsx"));
-const CreateRoom=lazy(()=>import("./pages/createRoom/index.tsx"));
 
 const mainRoutes =createBrowserRouter ([
     {
@@ -27,12 +26,8 @@ const mainRoutes =createBrowserRouter ([
             },
             {
                 index:false,
-                path:'/tt',
-                element:(
-                    <Loader>
-                        <CreateRoom/>
-                    </Loader>
-                )
+                path:'/create-room',
+
             },
         ]
     }

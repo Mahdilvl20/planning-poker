@@ -3,10 +3,12 @@ import SearchIcon from '@mui/icons-material/Search';
 
 import Indexoptions from "../Create Room Options/indexOptions.tsx";
 import {useState} from "react";
+import CreateRoom from "../createRoom";
 
 const LandingPage=()=>{
     const [values,setValues]=useState("");
     const [open, setOpen]=useState(false);
+    const [openCreate,setopenCreate]=useState(false);
     return (
        <Card sx={{
            backgroundColor:'transparent',
@@ -68,8 +70,11 @@ const LandingPage=()=>{
                     <Button variant={'text'} disabled={!values.trim()} sx={{color:'white',fontWeight:'bold'}}>join</Button>
                 </Box>
            </Box>
-           {/*<ResultModal open={open} onClose={()=>setOpen(false)} resultText={"test"}/>*/}
-           <Indexoptions open={open} onClose={()=>setOpen(false)}/>
+           <Indexoptions open={open} onClose={()=>setOpen(false)} onOpenCreate={()=> {
+               setOpen(false);
+               setopenCreate(true);
+           }}/>
+           <CreateRoom open={openCreate} onClose={()=>setopenCreate(false)}/>
        </Card>
    )
 
