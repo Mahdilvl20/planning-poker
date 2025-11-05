@@ -13,7 +13,9 @@ export default function MobileDrawer({open,onClose}:{open:any,onClose:any}){
     const members = [
         {key: 1, name: 'ali'},
         {key: 2, name: 'mahdi'},
-        {key: 3, name: 'test'},
+        {key: 3, name: 'kiki'},
+        {key: 4, name: 'sara'},
+        {key: 5 , name: 'ehsan'},
     ]
 
     return(
@@ -22,6 +24,7 @@ export default function MobileDrawer({open,onClose}:{open:any,onClose:any}){
             sx: {
                 display: "flex",
                 flexDirection: "column",
+                height:'25vh'
             }
         }} onOpen={function (): void {
             throw new Error("Function not implemented.");
