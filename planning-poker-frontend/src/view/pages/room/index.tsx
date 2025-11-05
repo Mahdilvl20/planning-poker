@@ -33,7 +33,7 @@ function Room() {
                 right: 80,
                 mt: 2,
                 fontWeight: 'bolder',
-                height: '4vh'
+                height: 'content'
             }} label={'EXIT'} variant={'filled'} icon={<HighlightOffIcon color={'error'} fontSize={'large'}/>}
                   onClick={handleExitClick}/>
             <Chip sx={{
@@ -41,13 +41,13 @@ function Room() {
                 right: 10,
                 mt: 2,
                 pt: 0.5,
-                height: '4vh'
+                height: 'content'
             }} label={<DehazeIcon fontSize={'large'}/>} onClick={handleSideBarClick}/>
             <Chip sx={{
                 position: 'absolute',
                 left: 10,
                 mt: 2,
-                height: '4vh',
+                height: 'content',
                 fontWeight: 'bolder',
                 fontSize: 17
             }} label={'welcome TEST'}/>
