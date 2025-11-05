@@ -7,11 +7,11 @@ import DehazeIcon from '@mui/icons-material/Dehaze';
 //*******Drawer
 import MobileDrawer from "../drawers/MobileDrawer";
 import DesktopDrawer from "../drawers/DesktopDrawer";
-
+import NumberPad from "../numberPad";
 
 function Room() {
     const [openDrawer, setOpenDrawer] = useState(false);
-
+    const [opentest,setOpentest]=useState(false);
     const isMobile = useMediaQuery("(max-width:600px)");
 
     const handleExitClick = () => {
@@ -56,6 +56,7 @@ function Room() {
              ) : (
                  <DesktopDrawer open={openDrawer} onClose={()=>setOpenDrawer(false)}/>
             )}
+            <NumberPad open={opentest} onClose={()=>setOpentest(false)}/>
         </Box>
     )
 }
