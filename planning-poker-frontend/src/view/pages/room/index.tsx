@@ -1,16 +1,19 @@
-import {Chip,Box,Drawer,Tabs,Tab,ListItem,ListItemText,useMediaQuery,SwipeableDrawer} from '@mui/material';
+import {Chip,Box,useMediaQuery} from '@mui/material';
 import {useState} from "react";
 //*******icons
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import DehazeIcon from '@mui/icons-material/Dehaze';
 
-
+//*******Drawer
+import MobileDrawer from "../drawers/MobileDrawer";
+import DesktopDrawer from "../drawers/DesktopDrawer";
 
 
 function Room() {
-    const [tab, setTab] = useState(0);
     const [openDrawer, setOpenDrawer] = useState(false);
+
     const isMobile = useMediaQuery("(max-width:600px)");
+
     const handleExitClick = () => {
 
     }
@@ -19,16 +22,6 @@ function Room() {
             setOpenDrawer(true);
         } else setOpenDrawer(false)
     }
-    const drawerlist = (
-        <div>
-            sssssssssss
-        </div>
-    );
-    const members = [
-        {key: 1, name: 'ali'},
-        {key: 2, name: 'mahdi'},
-        {key: 3, name: 'test'},
-    ]
     return (
         <Box sx={{
             position: 'relative',
@@ -59,52 +52,9 @@ function Room() {
                 fontSize: 17
             }} label={'welcome TEST'}/>
             {isMobile ? (
-                <SwipeableDrawer variant={'persistent'} anchor={'bottom'} open={openDrawer}
-                                 onClose={() => setOpenDrawer(false)} PaperProps={{
-                    sx: {
-                        display: "flex",
-                        flexDirection: "column",
-                    }
-                }} onOpen={function (): void {
-                    throw new Error("Function not implemented.");
-                }}>
-                    <Tabs value={tab} onChange={(_,v)=>setTab(v)}>
-                        <Tab label={'members'} />
-                        <Tab label={'chat'}/>
-                    </Tabs>
-                    <Box sx={{ flex: 1, overflowY: "auto" }}>
-                        {tab===0 && members.map((name,index)=>(
-                            <ListItem key={index} component={'div'} >
-                                <ListItemText primary={name.name}/>
-                            </ListItem>
-                        ))}
-                        {tab===1 && <div>{drawerlist}</div>}
-                    </Box>
-                </SwipeableDrawer>
+                <MobileDrawer open={openDrawer} onClose={()=>setOpenDrawer(false)}/>
              ) : (
-                <Drawer variant={'persistent'} open={openDrawer} anchor={'right'} onClose={()=>setOpenDrawer(false)} PaperProps={{sx:{
-                        height:'70vh',
-                        top:80,
-                        right:20,
-                        bottom:0,
-                        borderRadius:'25px',
-                        display:'flex',
-                        flexDirection:'column',
-                        p:2
-                    }}} >
-                    <Tabs value={tab} onChange={(_,v)=>setTab(v)}>
-                        <Tab label={'members'} />
-                        <Tab label={'chat'}/>
-                    </Tabs>
-                    <Box sx={{ flex: 1, overflowY: "auto" }}>
-                        {tab===0 && members.map((name,index)=>(
-                            <ListItem key={index} component={'div'} >
-                                <ListItemText primary={name.name}/>
-                            </ListItem>
-                        ))}
-                        {tab===1 && <div>{drawerlist}</div>}
-                    </Box>
-                </Drawer>
+                 <DesktopDrawer open={openDrawer} onClose={()=>setOpenDrawer(false)}/>
             )}
         </Box>
     )
