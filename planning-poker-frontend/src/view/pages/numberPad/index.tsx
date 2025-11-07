@@ -1,9 +1,12 @@
 import {Box, Chip} from "@mui/material";
+import {useState} from "react";
 
 
 export default function NumberPad({open,onClose}:{open:any,onClose:any}){
     if (!open) return null;
-    const numbers=['?',1,2,3,5,8,13,21,34,55,89,'∞']
+    const numbers=['?',1,2,3,5,8,13,21,34,55,89,'∞'];
+    const [selectedindex,setSelectIndex]=useState(null);
+    //@ts-ignore
     const handletest=()=>{
 
     }
@@ -28,9 +31,18 @@ export default function NumberPad({open,onClose}:{open:any,onClose:any}){
             borderRadius:'20px'
         }}>
             {numbers.map((value,index)=>(
-                <Chip key={index} variant={'outlined'} sx={{
-                    fontSize:18,
-                }} label={value} onClick={handletest} />
+                <Chip key={index}
+                      variant={'outlined'}
+                      sx={{
+                          fontSize: 18,
+                          transition: 'all .2s',
+                          boxShadow: selectedindex === index ? 3 : 'none',
+                          transform: selectedindex === index ? 'translateY(-4px)' : 'none',
+                          backgroundColor: selectedindex === index ? 'white' : 'default',
+                }}
+                      label={value}
+                      //@ts-ignore
+                      onClick={()=>setSelectIndex(index)} />
             ))}
             <Chip label={'Submit'} sx={{backgroundColor:'green',fontWeight:'bold'}} onClick={onClose}/>
         </Box>

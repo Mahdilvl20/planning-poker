@@ -13,7 +13,7 @@ function Room() {
     const [openDrawer, setOpenDrawer] = useState(false);
     const [opentest,setOpentest]=useState(false);
     const isMobile = useMediaQuery("(max-width:600px)");
-
+//@ts-ignore
     const handleExitClick = () => {
 
     }
@@ -35,7 +35,7 @@ function Room() {
                 fontWeight: 'bolder',
                 height: 'content'
             }} label={'EXIT'} variant={'filled'} icon={<HighlightOffIcon color={'error'} fontSize={'large'}/>}
-                  onClick={handleExitClick}/>
+                  onClick={()=>setOpentest(true)} />
             <Chip sx={{
                 position: 'absolute',
                 right: 10,
