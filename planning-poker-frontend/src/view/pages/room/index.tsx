@@ -3,6 +3,7 @@ import {useState} from "react";
 //*******icons
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import DehazeIcon from '@mui/icons-material/Dehaze';
+import PersonIcon from '@mui/icons-material/Person';
 
 //*******Drawer
 import MobileDrawer from "../drawers/MobileDrawer";
@@ -10,9 +11,12 @@ import DesktopDrawer from "../drawers/DesktopDrawer";
 import NumberPad from "../numberPad";
 
 function Room() {
-    const [openDrawer, setOpenDrawer] = useState(false);
+    const [openDrawer, setOpenDrawer] = useState(true);
     const [opentest,setOpentest]=useState(false);
     const isMobile = useMediaQuery("(max-width:600px)");
+
+    const members=['mahdi','ali','ehsan','asqar','akbar','soqra','kobra','mahdi','ali','ehsan','asqar','akbar','soqra','kobra'];
+
 //@ts-ignore
     const handleExitClick = () => {
 
@@ -56,6 +60,36 @@ function Room() {
              ) : (
                  <DesktopDrawer open={openDrawer} onClose={()=>setOpenDrawer(false)}/>
             )}
+
+            <Box
+                sx={{
+                    position:'absolute',
+                    flexWrap:'wrap',
+                    display:'flex',
+                    maxWidth:'1600px',
+                    top:'7vh',
+                    borderRadius:'20px',
+                    p:2,
+                    m:2,
+                    gap:2,
+                }}>
+                {members.map((index,key)=>(
+                    <Box key={key} sx={{
+                        display:'flex',
+                        flexDirection:'column',
+                        alignItems:'center',
+                        justifyContent:'center',
+                        backgroundColor:'#636CCB',
+                        borderRadius:'10px',
+                        p:2,
+                        width:{xs:'120px',sm:'190px'},
+                        height:{xs:'12vh',sm:'19vh'}
+                    }}>
+                        <PersonIcon/>
+                        {index}
+                    </Box>
+                ))}
+            </Box>
             <NumberPad open={opentest} onClose={()=>setOpentest(false)}/>
         </Box>
     )
