@@ -5,7 +5,7 @@ import MainLayout from "./pages/MainLayout";
 import Withoutheader from "./pages/header/withoutheader.tsx";
 
 
-
+const LoginPage =lazy(()=>import('./pages/Login'))
 const SignUpPage = lazy(() => import("./pages/SignUp"));
 const LandingPage = lazy(() => import("./pages/landing/index.tsx"));
 // @ts-ignore
@@ -35,6 +35,14 @@ const mainRoutes =createBrowserRouter ([
                       <SignUpPage/>
                   </Loader>
               )
+            },
+            {
+                path:'/login',
+                element: (
+                    <Loader>
+                        <LoginPage/>
+                    </Loader>
+                )
             },
             {
                 path:'*',
