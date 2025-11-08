@@ -11,10 +11,11 @@ import DesktopDrawer from "../drawers/DesktopDrawer";
 import NumberPad from "../numberPad";
 
 function Room() {
-    const [openDrawer, setOpenDrawer] = useState(true);
+    const [openDrawerDesktop, setOpenDrawerDesktop] = useState(true);
+    const [openDrawerMobile, setOpenDrawerMobile] = useState(true);
     const [opentest,setOpentest]=useState(false);
     const isMobile = useMediaQuery("(max-width:600px)");
-
+    const drawerWidth = 230;
     const members=['mahdi','ali','ehsan','asqar','akbar','soqra','kobra','mahdi','ali','ehsan','asqar','akbar','soqra','kobra'];
 
 //@ts-ignore
@@ -22,9 +23,12 @@ function Room() {
 
     }
     const handleSideBarClick = () => {
-        if (!openDrawer) {
-            setOpenDrawer(true);
-        } else setOpenDrawer(false)
+        if (!openDrawerDesktop && !openDrawerMobile) {
+            setOpenDrawerDesktop(true);
+            setOpenDrawerMobile(true);
+        } else
+        {setOpenDrawerDesktop(false)
+            setOpenDrawerMobile(false)}
     }
     return (
         <Box sx={{
@@ -56,9 +60,9 @@ function Room() {
                 fontSize: 17
             }} label={'welcome TEST'}/>
             {isMobile ? (
-                <MobileDrawer open={openDrawer} onClose={()=>setOpenDrawer(false)}/>
+                <MobileDrawer open={openDrawerMobile} onClose={()=>setOpenDrawerMobile(false)}/>
              ) : (
-                 <DesktopDrawer open={openDrawer} onClose={()=>setOpenDrawer(false)}/>
+                 <DesktopDrawer open={openDrawerDesktop} onClose={()=>setOpenDrawerDesktop(false)}/>
             )}
 
             <Box
@@ -66,12 +70,13 @@ function Room() {
                     position:'absolute',
                     flexWrap:'wrap',
                     display:'flex',
-                    maxWidth:'1600px',
+                    maxWidth:'1900px',
                     top:'7vh',
                     borderRadius:'20px',
                     p:2,
                     m:2,
                     gap:2,
+                    mr:{sm:openDrawerDesktop?`${drawerWidth}px`:0},
                 }}>
                 {members.map((index,key)=>(
                     <Box key={key} sx={{
