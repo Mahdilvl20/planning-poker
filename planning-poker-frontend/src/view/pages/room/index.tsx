@@ -90,7 +90,7 @@ function Room() {
                         width:{xs:'120px',sm:'190px'},
                         height:{xs:'12vh',sm:'19vh'}
                     }}>
-                        <PersonIcon/>
+                        <PersonIcon fontSize={'large'}/>
                         {index}
                     </Box>
                 ))}
