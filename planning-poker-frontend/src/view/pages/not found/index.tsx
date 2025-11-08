@@ -5,7 +5,7 @@ import {useNavigate} from "react-router-dom";
 
 export default function NotFound(){
     const Navigate=useNavigate();
-    const handeleMainPage=()=>{
+    const handleMainPage=()=>{
         Navigate('/');
     }
     return(
@@ -18,7 +18,7 @@ export default function NotFound(){
         }}>
             <ReportProblemIcon sx={{fontSize:'20rem'}}/>
             <Typography sx={{fontSize:'30px'}}>{'Not Found'}</Typography>
-            <Chip onClick={handeleMainPage}  label={'Main Page'} sx={{
+            <Chip onClick={handleMainPage}  label={'Main Page'} sx={{
                 fontSize:18,
                 "&:hover": { backgroundColor: 'white'},
                 m:2,
