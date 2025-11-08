@@ -5,9 +5,12 @@ import MainLayout from "./pages/MainLayout";
 import Withoutheader from "./pages/header/withoutheader.tsx";
 
 
+
+
 const LandingPage = lazy(() => import("./pages/landing/index.tsx"));
 // @ts-ignore
 const Room=lazy(()=>import("./pages/room/index.tsx"));
+const NotFound=lazy(()=>import('./pages/not found'))
 const mainRoutes =createBrowserRouter ([
     {
         path: "/",
@@ -25,6 +28,14 @@ const mainRoutes =createBrowserRouter ([
                     </Loader>
                 )
             },
+            {
+                path:'*',
+                element: (
+                    <Loader>
+                        <NotFound/>
+                    </Loader>
+                )
+            }
         ]
     },
     {
@@ -44,7 +55,8 @@ const mainRoutes =createBrowserRouter ([
                 )
             }
         ]
-    }
+    },
+
 ]);
 export default mainRoutes;
 
