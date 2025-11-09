@@ -39,7 +39,7 @@ function Indexoptions({open,onClose,onOpenCreate}:{open:boolean,onClose:()=>void
 
                     <Button variant={'contained'} sx={{mt:{xs:2,md:6},borderRadius:'0px',backgroundColor:'transparent',color:'black',boxShadow:'none','&:hover':{
                         fontWeight:'bold',
-                        }}} > test</Button>
+                        }}}>Create and Enter the room</Button>
                     <Button variant={'contained'} sx={{mb:2,borderRadius:'0px',backgroundColor:'transparent',color:'black',boxShadow:'none','&:hover':{
                         fontWeight:'bold',
                         }}}
