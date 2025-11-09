@@ -1,0 +1,19 @@
+# Node
+node_modules/
+dist/
+*.log
+
+# NestJS
+/.nest
+/.env
+/.env.*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
