@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {HttpException, Injectable} from '@nestjs/common';
 import {Repository} from "typeorm";
 import {User} from "src/users/entities/user.entity";
 import {InjectRepository} from "@nestjs/typeorm";
-
+import argon2 from "argon2";
 @Injectable()
 export class UsersService {
     constructor(
@@ -15,7 +15,11 @@ export class UsersService {
     }
 
     async createUser(name:string,email:string,password:string){
-        const user=this.userRepository.create({name, email, password});
+        if(!name || !email || !password){
+            throw new Error("Please enter a valid email");
+        }
+        const hashedPassword=await argon2.hash(password);
+        const user=this.userRepository.create({name, email, password:hashedPassword});
         return this.userRepository.save(user);
     }
 

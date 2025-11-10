@@ -19,7 +19,9 @@ export class AuthService {
         return null;
     }
     async Login(user:any){
-        const payload={sub:user.id,name:user.name};
-        return {access_token:this.jwtService.sign(payload)};
+        const payload={sub:user.id,name:user.name,email:user.email};
+        return {access_token:this.jwtService.sign(payload),
+        expires_in:3600,
+        token_type:'Bearer',};
     }
 }
