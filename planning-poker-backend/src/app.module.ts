@@ -20,7 +20,10 @@ import {TypeOrmModule} from '@nestjs/typeorm';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true,
-  })],
+  }),
+      UsersModule,
+      AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
