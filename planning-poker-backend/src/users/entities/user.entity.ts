@@ -1,4 +1,5 @@
-import {Column, Entity, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {Room} from "src/rooms/entities/room.entity";
 @Entity()
 export class User {
     @PrimaryGeneratedColumn()
@@ -9,4 +10,6 @@ export class User {
     email: string;
     @Column()
     password: string;
+    @OneToMany(()=>Room,(room)=>room.creator)
+    CreatedRooms:Room[];
 }

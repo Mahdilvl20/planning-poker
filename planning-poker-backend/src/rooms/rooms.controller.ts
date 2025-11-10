@@ -1,34 +1,33 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Res, Req} from '@nestjs/common';
 import { RoomsService } from './rooms.service';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
+import {AuthGuard} from "@nestjs/passport";
+import {JwtAuthGuard} from "src/auth/guards/jwt-auth.guard";
 
+interface AuthRequest extends Request {
+    user:any
+}
 @Controller('rooms')
+@UseGuards(JwtAuthGuard)
 export class RoomsController {
-  constructor(private readonly roomsService: RoomsService) {}
+  constructor(private roomsService: RoomsService) {}
 
-  @Post()
-  create(@Body() createRoomDto: CreateRoomDto) {
-    return this.roomsService.create(createRoomDto);
-  }
+    @Post()
 
-  @Get()
-  findAll() {
-    return this.roomsService.findAll();
-  }
+    async create(@Body('name') name:string,@Req() req:AuthRequest) {
+      const creator=req.user;
+      return this.roomsService.createRoom(name, creator);
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.roomsService.findOne(+id);
-  }
+    @Get()
+    async findAll(){
+      return this.roomsService.findAllActive();
+    }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoomDto: UpdateRoomDto) {
-    return this.roomsService.update(+id, updateRoomDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.roomsService.remove(+id);
-  }
+    @Patch(':id/deactivate')
+    async deactivate(@Param('id') id:string,@Req() req:AuthRequest){
+        console.log('Controller reached, id:', id);
+      return this.roomsService.deactivateRoom(id);
+    }
 }

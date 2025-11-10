@@ -8,6 +8,9 @@ import { MessagesModule } from './messages/messages.module';
 import { WebsocketsModule } from './websockets/websockets.module';
 import { ConfigModule } from '@nestjs/config';
 import {TypeOrmModule} from '@nestjs/typeorm';
+import {User} from "src/users/entities/user.entity";
+import {Room} from "src/rooms/entities/room.entity";
+
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true,
@@ -20,6 +23,7 @@ import {TypeOrmModule} from '@nestjs/typeorm';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true,
+      entities: [User, Room],
   }),
       UsersModule,
       AuthModule,
