@@ -11,5 +11,5 @@ export class User {
     @Column()
     password: string;
     @OneToMany(()=>Room,(room)=>room.creator)
-    CreatedRooms:Room[];
+    createdRooms:Room[];
 }

@@ -16,15 +16,19 @@ export class RoomsService {
   ) {}
 
     async createRoom(name:string,creatorPayLoad:{userId:number}) {
+
+
       const creator= await this.userRepository.findOne({
           where:{id:creatorPayLoad.userId}
       });
+
       if(!creator){
           throw new UnauthorizedException("User not found");
       }
       const room=this.roomRepository.create({
           name,creator,
       })
+
       return this.roomRepository.save(room);
     }
 
@@ -32,14 +36,13 @@ export class RoomsService {
     async findById(id:string): Promise<Room | null> {
       return this.roomRepository.findOne({
           where:{id},
-          relations: ['creator'],
+
       });
     }
 
     async findAllActive(){
       return this.roomRepository.find({
           where:{isActive:true},
-          relations: ['creator'],
       });
     }
 

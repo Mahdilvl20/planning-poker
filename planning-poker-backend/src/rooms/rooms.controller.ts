@@ -4,9 +4,10 @@ import { CreateRoomDto } from './dto/create-room.dto';
 import { UpdateRoomDto } from './dto/update-room.dto';
 import {AuthGuard} from "@nestjs/passport";
 import {JwtAuthGuard} from "src/auth/guards/jwt-auth.guard";
+import {Request} from "express";
 
 interface AuthRequest extends Request {
-    user:any
+    user:{userId:number,email:string,name:string};
 }
 @Controller('rooms')
 @UseGuards(JwtAuthGuard)
@@ -14,10 +15,20 @@ export class RoomsController {
   constructor(private roomsService: RoomsService) {}
 
     @Post()
+    async create(@Body('name') name: string, @Req() req: AuthRequest) {
+        const room = await this.roomsService.createRoom(name, req.user);
 
-    async create(@Body('name') name:string,@Req() req:AuthRequest) {
-      const creator=req.user;
-      return this.roomsService.createRoom(name, creator);
+        const forwarded = req.get('X-Forwarded-Proto');
+        const protocol = forwarded ? forwarded.split(',')[0] : (req.protocol || 'http');
+        const host = req.get('host') || 'localhost:3000';
+        const baseUrl = `${protocol}://${host}`;
+        const shortLink = `${baseUrl}/room/${room.slug}`;
+        return {
+            id: room.id,
+            name: room.name,
+            link: shortLink,
+            slug: room.slug,
+        };
     }
 
     @Get()
