@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {Controller, Post, Body, BadRequestException, UnauthorizedException} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {UsersService} from "src/users/users.service";
 import {CreateUserDto} from "src/users/dto/create-user.dto";
@@ -26,10 +26,10 @@ export class AuthController {
     @Post('login')
     async login(@Body() loginDto: LoginDto) {
       if(!loginDto.email || !loginDto.password){
-          return {error:'all fields are required'}
+          throw new BadRequestException('all fields are required')
       }
       const user=await this.authService.validateUser(loginDto.email,loginDto.password);
-      if(!user) return {error:'invalid email or password'};
+      if(!user) throw new UnauthorizedException('Invalid email or password');
       return this.authService.Login(user);
     }
 }

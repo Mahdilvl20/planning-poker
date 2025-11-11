@@ -1,4 +1,4 @@
-import {Box,TextField,Typography,Button,Divider,Chip} from '@mui/material';
+import {Box,TextField,Typography,Button,Divider,Chip,Snackbar,Alert} from '@mui/material';
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
 import {login} from "../../../api/api.ts";
@@ -8,13 +8,25 @@ export default function Login(){
     const Navigate= useNavigate();
     const [email,setEmail]=useState("");
     const [password,setPassword]=useState("");
+    const [loginSuccess,setLoginSuccess]=useState(false);
+    const [loginFail,setLoginFail]=useState(false);
     const handleSignIn=async ()=>{
         try {
-            const res= await login(email,password)
-            console.log("success",res.data)
+            const res= await login(email,password);
+            localStorage.setItem("name",res.data.user.name);
+            setLoginSuccess(true)
         }catch(err){
             console.log("error",err)
+            setLoginFail(true)
         }
+    }
+    const handleloginsuccess=()=>{
+        Navigate('/');
+        window.location.reload();
+        setLoginSuccess(false)
+    }
+    const handleloginfail=()=>{
+        setLoginFail(false)
     }
     const handleOnSignUpClick = ()=>{
         Navigate('/signup');
@@ -94,6 +106,22 @@ export default function Login(){
                 </Divider>
                 <Chip variant={'outlined'} label={'Main Page'} onClick={handleMainPageClick}/>
             </Box>
+            <Snackbar
+                open={loginSuccess}
+                autoHideDuration={2000}
+                onClose={handleloginsuccess}
+                anchorOrigin={{vertical:'top',horizontal:'center'}}
+            >
+                <Alert severity={'success'}>You are successfully login </Alert>
+            </Snackbar>
+            <Snackbar
+                open={loginFail}
+                autoHideDuration={2000}
+                onClose={handleloginfail}
+                anchorOrigin={{vertical:'top',horizontal:'center'}}
+            >
+                <Alert severity={'error'}>email or password not correct</Alert>
+            </Snackbar>
         </Box>
     )
 }
