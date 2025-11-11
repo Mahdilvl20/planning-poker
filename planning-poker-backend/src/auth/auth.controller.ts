@@ -15,8 +15,8 @@ export class AuthController {
       if(!createUserDto.name || !createUserDto.email || !createUserDto.password){
           return {error:'all fields are required'}
       }
-      const test=await this.usersService.findByEmail(createUserDto.email);
-      if(test){
+      const userAlready=await this.usersService.findByEmail(createUserDto.email);
+      if(userAlready){
           return {error:'user already exists'};
       }
       const user=await this.usersService.createUser(createUserDto.name,createUserDto.email,createUserDto.password);
