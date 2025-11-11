@@ -1,4 +1,4 @@
-import {Box,TextField,Typography,Button,Divider,Chip} from '@mui/material';
+import {Box, TextField, Typography, Button, Divider, Chip, Snackbar, Alert} from '@mui/material';
 import {useNavigate} from "react-router-dom";
 import {register} from "../../../api/api.ts";
 import {useState} from "react";
@@ -6,16 +6,29 @@ import {useState} from "react";
 
 export default function SignUpPage(){
     const Navigate= useNavigate();
+    const [signUpFailed, setSignUpFailed] = useState(false);
+    const [signUpSuccess, setSignUpSuccess] = useState(false);
+    const [result,setResult]=useState('');
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const handleSignUp = async ()=>{
         try {
             const res=await register(name,email,password)
-            console.log("success",res.data)
-        }catch(err){
-            console.log(err)
+            console.log(res.data)
+            setSignUpSuccess(true);
+        }catch(err:any){
+            const msg=err.response?.data?.message;
+            setResult(msg)
+            setSignUpFailed(true);
         }
+    }
+    const handleSignUpFailed=()=>{
+        setSignUpFailed(false);
+    }
+    const handleSignUpSuccess=()=>{
+
+        setSignUpSuccess(false);
     }
     const handleOnLoginClick = ()=>{
         Navigate('/login');
@@ -112,6 +125,22 @@ export default function SignUpPage(){
                 </Divider>
                 <Chip variant={'outlined'} label={'Main Page'} onClick={handleMainPageClick}/>
             </Box>
+            <Snackbar
+                open={signUpSuccess}
+                autoHideDuration={2000}
+                onClose={handleSignUpSuccess}
+                anchorOrigin={{vertical:'top',horizontal:'center'}}
+            >
+                <Alert severity={'success'}>You are successfully signUp </Alert>
+            </Snackbar>
+            <Snackbar
+                open={signUpFailed}
+                autoHideDuration={2000}
+                onClose={handleSignUpFailed}
+                anchorOrigin={{vertical:'top',horizontal:'center'}}
+            >
+                <Alert severity={'error'}>{result}</Alert>
+            </Snackbar>
         </Box>
     )
 }

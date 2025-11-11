@@ -1,4 +1,4 @@
-import {Controller, Post, Body, BadRequestException, UnauthorizedException} from '@nestjs/common';
+import {Controller, Post, Body, BadRequestException, UnauthorizedException, ConflictException} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {UsersService} from "src/users/users.service";
 import {CreateUserDto} from "src/users/dto/create-user.dto";
@@ -13,11 +13,13 @@ export class AuthController {
     @Post('register')
     async register(@Body() createUserDto: CreateUserDto) {
       if(!createUserDto.name || !createUserDto.email || !createUserDto.password){
-          return {error:'all fields are required'}
+       //   return {error:'all fields are required',code:{id:1}}
+          throw new BadRequestException('Username and password are required');
       }
       const userAlready=await this.usersService.findByEmail(createUserDto.email);
       if(userAlready){
-          return {error:'user already exists'};
+       //  return {error:'user already exists',code:{id:2}};
+          throw new ConflictException('User already exists');
       }
       const user=await this.usersService.createUser(createUserDto.name,createUserDto.email,createUserDto.password);
       const {password,...result}=user;

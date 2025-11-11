@@ -8,6 +8,7 @@ export default function Login(){
     const Navigate= useNavigate();
     const [email,setEmail]=useState("");
     const [password,setPassword]=useState("");
+    const [result,setResult]=useState("");
     const [loginSuccess,setLoginSuccess]=useState(false);
     const [loginFail,setLoginFail]=useState(false);
     const handleSignIn=async ()=>{
@@ -15,9 +16,9 @@ export default function Login(){
             const res= await login(email,password);
             localStorage.setItem("name",res.data.user.name);
             setLoginSuccess(true)
-        }catch(err){
-            console.log("error",err)
+        }catch(err:any){
             setLoginFail(true)
+            setResult(err.response.data.message);
         }
     }
     const handleloginsuccess=()=>{
@@ -120,7 +121,7 @@ export default function Login(){
                 onClose={handleloginfail}
                 anchorOrigin={{vertical:'top',horizontal:'center'}}
             >
-                <Alert severity={'error'}>email or password not correct</Alert>
+                <Alert severity={'error'}>{result}</Alert>
             </Snackbar>
         </Box>
     )
