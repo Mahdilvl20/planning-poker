@@ -15,7 +15,10 @@ export class AuthController {
       if(!createUserDto.name || !createUserDto.email || !createUserDto.password){
           return {error:'all fields are required'}
       }
-
+      const test=await this.usersService.findByEmail(createUserDto.email);
+      if(test){
+          return {error:'user already exists'};
+      }
       const user=await this.usersService.createUser(createUserDto.name,createUserDto.email,createUserDto.password);
       const {password,...result}=user;
       return result;
@@ -26,7 +29,7 @@ export class AuthController {
           return {error:'all fields are required'}
       }
       const user=await this.authService.validateUser(loginDto.email,loginDto.password);
-      if(!user) return {error:'invalid email'};
+      if(!user) return {error:'invalid email or password'};
       return this.authService.Login(user);
     }
 }
