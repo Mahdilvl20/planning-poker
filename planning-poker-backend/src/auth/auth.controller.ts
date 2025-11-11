@@ -15,6 +15,7 @@ export class AuthController {
       if(!createUserDto.name || !createUserDto.email || !createUserDto.password){
           return {error:'all fields are required'}
       }
+
       const user=await this.usersService.createUser(createUserDto.name,createUserDto.email,createUserDto.password);
       const {password,...result}=user;
       return result;

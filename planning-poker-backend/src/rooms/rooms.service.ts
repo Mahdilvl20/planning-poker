@@ -28,7 +28,7 @@ export class RoomsService {
       const room=this.roomRepository.create({
           name,creator,
       })
-
+        if(!room.name) throw new NotFoundException("Room not found");
       return this.roomRepository.save(room);
     }
 
@@ -49,7 +49,7 @@ export class RoomsService {
     async deactivateRoom(id: string): Promise<void> {
         console.log('deactivateRoom input:', { id });
         const result = await this.roomRepository.update(
-            { id, isActive: true }, // فقط اتاق‌های فعال
+            { id, isActive: true },
             { isActive: false }
         );
         console.log("deactivated room", result);

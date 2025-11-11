@@ -1,9 +1,22 @@
 import {Box,TextField,Typography,Button,Divider,Chip} from '@mui/material';
 import {useNavigate} from "react-router-dom";
+import {register} from "../../../api/api.ts";
+import {useState} from "react";
 
 
 export default function SignUpPage(){
     const Navigate= useNavigate();
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const handleSignUp = async ()=>{
+        try {
+            const res=await register(name,email,password)
+            console.log("success",res.data)
+        }catch(err){
+            console.log(err)
+        }
+    }
     const handleOnLoginClick = ()=>{
         Navigate('/login');
         window.location.reload();
@@ -39,6 +52,8 @@ export default function SignUpPage(){
                     label="Name"
                     type="text"
                     fullWidth
+                    value={name}
+                    onChange={event => setName(event.target.value)}
                     sx={{
                         borderRadius: '10px',
                         '& .MuiOutlinedInput-root': {
@@ -55,6 +70,8 @@ export default function SignUpPage(){
                     label="Email"
                     type="email"
                     fullWidth
+                    value={email}
+                    onChange={event => setEmail(event.target.value)}
                     sx={{
                         borderRadius: '10px',
                         '& .MuiOutlinedInput-root': {
@@ -71,6 +88,8 @@ export default function SignUpPage(){
                     label="Password"
                     type="password"
                     fullWidth
+                    value={password}
+                    onChange={event => setPassword(event.target.value)}
                     sx={{
                         borderRadius: '10px',
                         '& .MuiOutlinedInput-root': {
@@ -85,7 +104,7 @@ export default function SignUpPage(){
                 <Button variant={'outlined'} sx={{
                     color:'black',
                     borderColor:'black',
-                }}>
+                }} onClick={handleSignUp}>
                     Create Account
                 </Button>
                 <Divider sx={{width: '100%'}}>

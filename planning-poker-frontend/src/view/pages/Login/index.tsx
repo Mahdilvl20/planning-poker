@@ -1,10 +1,21 @@
 import {Box,TextField,Typography,Button,Divider,Chip} from '@mui/material';
 import {useNavigate} from "react-router-dom";
+import {useState} from "react";
+import {login} from "../../../api/api.ts";
 
 
 export default function Login(){
     const Navigate= useNavigate();
-
+    const [email,setEmail]=useState("");
+    const [password,setPassword]=useState("");
+    const handleSignIn=async ()=>{
+        try {
+            const res= await login(email,password)
+            console.log("success",res.data)
+        }catch(err){
+            console.log("error",err)
+        }
+    }
     const handleOnSignUpClick = ()=>{
         Navigate('/signup');
         window.location.reload();
@@ -40,6 +51,8 @@ export default function Login(){
                     variant="outlined"
                     label="Email"
                     type="email"
+                    value={email}
+                    onChange={(e)=>setEmail(e.target.value)}
                     fullWidth
                     sx={{
                         borderRadius: '10px',
@@ -57,6 +70,8 @@ export default function Login(){
                     label="Password"
                     type="password"
                     fullWidth
+                    value={password}
+                    onChange={(e)=>setPassword(e.target.value)}
                     sx={{
                         borderRadius: '10px',
                         '& .MuiOutlinedInput-root': {
@@ -71,7 +86,7 @@ export default function Login(){
                 <Button variant={'outlined'} sx={{
                     color:'black',
                     borderColor:'black',
-                }}>
+                }} onClick={handleSignIn}>
                     Login
                 </Button>
                 <Divider sx={{width: '100%'}}>
