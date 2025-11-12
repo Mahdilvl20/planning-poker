@@ -1,17 +1,30 @@
 
 import {Box, Chip, Typography,Alert,Snackbar,Button} from "@mui/material";
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import CloseIcon from "@mui/icons-material/Close";
+import {createRoom} from "../../../api/api.ts";
 
 function CreateRoom({open,onClose}:{open:boolean,onClose:()=>void}){
     if (!open) return null;
     const [openS,setopenS]=useState(false);
-
+    const [name,setName]=useState("test");
+    const [roomLink,setRoomLink]=useState("");
+    const handleGetRoomLink= async ()=>{
+        try {
+            const res=await createRoom(name);
+            setRoomLink(res.data.link);
+        }catch (err:any){
+            console.log(err.response.data.message);
+        }
+    }
     const handleChipClick=()=>{
-        navigator.clipboard.writeText("test");
+        navigator.clipboard.writeText(roomLink);
         setopenS(true);
     }
+    useEffect(()=>{
+        handleGetRoomLink();
+    },[]);
     return(
         <Box sx={{
             position: 'fixed',
@@ -50,7 +63,7 @@ function CreateRoom({open,onClose}:{open:boolean,onClose:()=>void}){
                 </Button>
 
                 <Typography sx={{fontWeight:'bolder',mt:3}}>your room link</Typography>
-                <Chip label={'test'} onClick={handleChipClick} icon={<ContentCopyIcon/>} sx={{p:2,m:2}} >
+                <Chip label={roomLink} onClick={handleChipClick} icon={<ContentCopyIcon/>} sx={{p:2,m:2}} >
 
                 </Chip>
 

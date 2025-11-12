@@ -1,4 +1,4 @@
-import {Card,Box,Typography,Button,TextField,InputAdornment} from '@mui/material';
+import {Card, Box, Typography, Button, TextField, InputAdornment, Snackbar, Alert} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import {useState} from "react";
 //**********page import **********//
@@ -11,7 +11,22 @@ import CreateRoom from "../createRoom";
 const LandingPage=()=>{
     const [values,setValues]=useState("");
     const [open, setOpen]=useState(false);
+    const [loginSnackbar,setLoginSnackbar]=useState(false);
+    const [loginResults,setLoginResults]=useState("");
     const [openCreate,setopenCreate]=useState(false);
+    const isLogin=()=>{
+        const token=localStorage.getItem("access_token");
+        if(!token){
+            setLoginSnackbar(true);
+            setLoginResults("please sign in");
+            setOpen(false);
+        }
+        else {
+            setOpen(false);
+            setopenCreate(true);
+        }
+
+    }
     return (
        <Card sx={{
            backgroundColor:'transparent',
@@ -73,11 +88,17 @@ const LandingPage=()=>{
                     <Button variant={'text'} disabled={!values.trim()} sx={{color:'white',fontWeight:'bold'}}>join</Button>
                 </Box>
            </Box>
-           <Indexoptions open={open} onClose={()=>setOpen(false)} onOpenCreate={()=> {
-               setOpen(false);
-               setopenCreate(true);
-           }}/>
+           <Snackbar
+               open={loginSnackbar}
+               autoHideDuration={2000}
+               onClose={()=>setLoginSnackbar(false)}
+               anchorOrigin={{vertical:'top',horizontal:'center'}}
+           >
+               <Alert severity={'error'}>{loginResults}</Alert>
+           </Snackbar>
+           <Indexoptions open={open} onClose={()=>setOpen(false)} onOpenCreate={isLogin}/>
            <CreateRoom open={openCreate} onClose={()=>setopenCreate(false)}/>
+
        </Card>
    )
 

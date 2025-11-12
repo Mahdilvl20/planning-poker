@@ -15,6 +15,7 @@ export default function Login(){
         try {
             const res= await login(email,password);
             localStorage.setItem("name",res.data.user.name);
+            localStorage.setItem("access_token",res.data.access_token);
             setLoginSuccess(true)
         }catch(err:any){
             setLoginFail(true)
