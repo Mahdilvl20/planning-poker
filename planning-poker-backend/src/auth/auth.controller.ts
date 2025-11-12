@@ -18,7 +18,7 @@ export class AuthController {
       }
       const userAlready=await this.usersService.findByEmail(createUserDto.email);
       if(userAlready){
-       //  return {error:'user already exists',code:{id:2}};
+
           throw new ConflictException('User already exists');
       }
       const user=await this.usersService.createUser(createUserDto.name,createUserDto.email,createUserDto.password);

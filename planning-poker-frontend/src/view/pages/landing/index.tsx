@@ -4,16 +4,21 @@ import {useState} from "react";
 //**********page import **********//
 import Indexoptions from "../Create Room Options/indexOptions.tsx";
 import CreateRoom from "../createRoom";
-
-
+import {searchRoom} from "../../../api/api.ts";
+import {useNavigate} from "react-router-dom";
 
 
 const LandingPage=()=>{
+    const Navigate = useNavigate();
+    const [roomFind,setRoomFind]=useState(false);
+    const [roomNotFound,setRoomNotFound]=useState(false);
+    const [roomLinks,setRoomLinks]=useState("");
     const [values,setValues]=useState("");
     const [open, setOpen]=useState(false);
     const [loginSnackbar,setLoginSnackbar]=useState(false);
     const [loginResults,setLoginResults]=useState("");
     const [openCreate,setopenCreate]=useState(false);
+
     const isLogin=()=>{
         const token=localStorage.getItem("access_token");
         if(!token){
@@ -26,6 +31,22 @@ const LandingPage=()=>{
             setopenCreate(true);
         }
 
+    }
+    const handleSearchRoom=async ()=>{
+
+        try {
+            const res=await searchRoom(values);
+            setRoomLinks(res.data.slug);
+            setRoomFind(true)
+        } catch(err:any){
+            setRoomNotFound(true);
+            console.log(err.response.data.message);
+        }
+    }
+    const handleRoomFind=()=>{
+        setRoomFind(false);
+        Navigate(`rooms/${roomLinks}`);
+        window.location.reload();
     }
     return (
        <Card sx={{
@@ -85,7 +106,7 @@ const LandingPage=()=>{
                             },
                         }}
                     />
-                    <Button variant={'text'} disabled={!values.trim()} sx={{color:'white',fontWeight:'bold'}}>join</Button>
+                    <Button variant={'text'} disabled={!values.trim()} sx={{color:'white',fontWeight:'bold'}} onClick={handleSearchRoom}>join</Button>
                 </Box>
            </Box>
            <Snackbar
@@ -98,7 +119,22 @@ const LandingPage=()=>{
            </Snackbar>
            <Indexoptions open={open} onClose={()=>setOpen(false)} onOpenCreate={isLogin}/>
            <CreateRoom open={openCreate} onClose={()=>setopenCreate(false)}/>
-
+           <Snackbar
+               open={roomFind}
+               autoHideDuration={2000}
+               onClose={handleRoomFind}
+               anchorOrigin={{vertical:'top',horizontal:'center'}}
+           >
+               <Alert severity={'success'}>Room founded </Alert>
+           </Snackbar>
+           <Snackbar
+               open={roomNotFound}
+               autoHideDuration={4000}
+               onClose={()=>setRoomNotFound(false)}
+               anchorOrigin={{vertical:'top',horizontal:'center'}}
+           >
+               <Alert severity={'warning'}>Not Found</Alert>
+           </Snackbar>
        </Card>
    )
 

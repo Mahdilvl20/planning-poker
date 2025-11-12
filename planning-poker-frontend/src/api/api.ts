@@ -22,3 +22,6 @@ export const login=(email:string,password:string) => {
 export const createRoom=(name:string)=>{
    return  api.post('rooms',{name})
 }
+export const searchRoom=(link:string)=>{
+    return  api.post('rooms/findroom',{link})
+}

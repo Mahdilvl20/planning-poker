@@ -33,10 +33,10 @@ export class RoomsService {
     }
 
 
-    async findById(id:string): Promise<Room | null> {
-      return this.roomRepository.findOne({
-          where:{id},
-
+    async findById(slug:string) {
+        if (!slug) return null;
+        return this.roomRepository.findOne({
+          where:{slug:slug},
       });
     }
 
@@ -46,15 +46,6 @@ export class RoomsService {
       });
     }
 
-    async deactivateRoom(id: string): Promise<void> {
-        console.log('deactivateRoom input:', { id });
-        const result = await this.roomRepository.update(
-            { id, isActive: true },
-            { isActive: false }
-        );
-        console.log("deactivated room", result);
-        if (result.affected === 0) {
-            throw new NotFoundException(`Room with ID "${id}" not found or already deactivated`);
-        }
-    }
+
+
 }
