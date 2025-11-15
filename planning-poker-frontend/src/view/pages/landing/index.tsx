@@ -36,16 +36,19 @@ const LandingPage=()=>{
 
         try {
             const res=await searchRoom(values);
+            localStorage.setItem('roomLink',res.data.slug);
             setRoomLinks(res.data.slug);
             setRoomFind(true)
+            console.log(res.data.slug);
         } catch(err:any){
             setRoomNotFound(true);
-            console.log(err.response.data.message);
+            console.log(err);
         }
+
     }
     const handleRoomFind=()=>{
         setRoomFind(false);
-        Navigate(`rooms/${roomLinks}`);
+        Navigate(`room/${roomLinks}`);
         window.location.reload();
     }
     return (
