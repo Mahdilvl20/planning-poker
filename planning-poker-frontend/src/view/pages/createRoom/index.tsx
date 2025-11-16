@@ -14,6 +14,8 @@ function CreateRoom({open,onClose}:{open:boolean,onClose:()=>void}){
         try {
             const res=await createRoom(name);
             setRoomLink(res.data.link);
+            localStorage.setItem('roomLink',res.data.slug);
+            console.log(res);
         }catch (err:any){
             console.log(err.response.data.message);
         }

@@ -4,7 +4,6 @@ import Loader from "./pages/Loader/loader";
 import MainLayout from "./pages/MainLayout";
 import Withoutheader from "./pages/header/withoutheader.tsx";
 
-const test=localStorage.getItem('roomLink');
 const LoginPage =lazy(()=>import('./pages/Login'))
 const SignUpPage = lazy(() => import("./pages/SignUp"));
 const LandingPage = lazy(() => import("./pages/landing/index.tsx"));
@@ -55,7 +54,7 @@ const mainRoutes =createBrowserRouter ([
         ]
     },
     {
-      path:`/room/${test}`,
+      path:'/room/:slug',
         element:(
             <Loader>
                 <Withoutheader/>

@@ -10,6 +10,7 @@ import MobileDrawer from "../drawers/MobileDrawer";
 import DesktopDrawer from "../drawers/DesktopDrawer";
 import NumberPad from "../numberPad";
 import {getSocket} from "../socket/index.ts";
+import {useNavigate, useParams} from "react-router-dom";
 
 function Room() {
     const [openDrawerDesktop, setOpenDrawerDesktop] = useState(true);
@@ -18,7 +19,16 @@ function Room() {
     const isMobile = useMediaQuery("(max-width:600px)");
     const drawerWidth = 230;
     const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
-
+    const name=localStorage.getItem('name');
+    const {slug} =useParams();
+    const savedSlug=localStorage.getItem('roomLink');
+    const navigate=useNavigate();
+    useEffect(() => {
+        if (slug!==savedSlug){
+            window.location.reload();
+            navigate('*');
+        }
+    }, [slug,savedSlug,navigate]);
     useEffect(() => {
         const s = getSocket();
         if (!s) {
@@ -96,7 +106,7 @@ function Room() {
                 height: 'content',
                 fontWeight: 'bolder',
                 fontSize: 17
-            }} label={'welcome TEST'}/>
+            }} label={`welcome ${name}`}/>
             {isMobile ? (
                 <MobileDrawer open={openDrawerMobile} onClose={()=>setOpenDrawerMobile(false)}/>
              ) : (
