@@ -1,12 +1,23 @@
 import {Box, Typography, Card, Chip, Avatar, useMediaQuery} from "@mui/material"
 import LOGO from "../../../assets/LOGO.png";
 import LoginIcon from '@mui/icons-material/Login';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import {useNavigate} from "react-router-dom";
+import {useEffect, useState} from "react";
 
 
 const Header=()=>{
     const isMobile = useMediaQuery("(max-width:600px)");
     const Navigate=useNavigate();
+    const [Login,setLogin]=useState(false);
+    useEffect(()=>{
+        const name=localStorage.getItem('name');
+        const token=localStorage.getItem('access_token');
+        if (!name && !token){
+            setLogin(true);
+        }
+        else setLogin(false);
+    })
     const handleOnLogoClick=()=>{
         Navigate('/');
         window.location.reload();
@@ -15,7 +26,14 @@ const Header=()=>{
         Navigate('/login');
         window.location.reload();
     }
+    const handleOnSignOutClick=()=>{
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('name');
+        setLogin(false);
+        window.location.reload();
+    }
     return(
+
             <Card sx={{
                 display:'flex',
                 justifyContent: {md:'space-between',xs:'center'},
@@ -40,7 +58,8 @@ const Header=()=>{
                     display:{md:'flex'},
                     alignItems: 'center',
                 }}>
-                    {isMobile? (
+                    {Login? (
+                    isMobile? (
 
                            <Chip label={<LoginIcon sx={{pt:0.5}}/>} sx={{
                                position:'absolute',
@@ -50,7 +69,8 @@ const Header=()=>{
 
                     ) : (
                         <Chip label={"login / signup"} avatar={<LoginIcon fontSize={'large'}/>} sx={{backgroundColor:'#3C467B',fontSize:17,fontWeight:'bolder'}} onClick={handleOnSignInClick}/>
-                        )}
+                        )
+                    ):(<Chip icon={<ExitToAppIcon fontSize={'medium'}/>} label={'LogOut'} color={'error'} onClick={handleOnSignOutClick}/>) }
                 </Box>
             </Card>
 
