@@ -18,6 +18,7 @@ export class WebsocketsGateway
     server: Server;
     private onlineUsers=new Map<number,string>();
     private onlineusersOnroom:Record<string, string[]>={};
+    private userRooms=new Map<number, Set<string>>(); // userId -> Set of roomIds
     constructor(private jwt:JwtService) {
     }
     async handleConnection(client:Socket){
@@ -38,8 +39,30 @@ export class WebsocketsGateway
     }
     handleDisconnect(client:Socket){
         const userId=client.data.userId;
+        const username=client.data.username;
+        
         if(userId){
             this.onlineUsers.delete(userId);
+            
+            // Remove user from all rooms they were in
+            const userRoomIds = this.userRooms.get(userId);
+            if(userRoomIds && userRoomIds.size > 0){
+                userRoomIds.forEach(roomId => {
+                    // Remove username from room's user list
+                    if(this.onlineusersOnroom[roomId]){
+                        this.onlineusersOnroom[roomId] = this.onlineusersOnroom[roomId].filter(
+                            name => name !== username
+                        );
+                        
+                        // Notify other users in the room
+                        const updatedUsers = this.onlineusersOnroom[roomId];
+                        this.server.to(roomId).emit('roomUsers', updatedUsers);
+                    }
+                });
+                
+                // Clear user's rooms
+                this.userRooms.delete(userId);
+            }
         }
     }
     @SubscribeMessage('join-room')
@@ -48,22 +71,30 @@ export class WebsocketsGateway
         @ConnectedSocket() client: Socket,
     ) {
         const { roomId, name } = data;
+        const userId = client.data.userId;
 
         if (!this.onlineusersOnroom[roomId]) {
             this.onlineusersOnroom[roomId] = [];
         }
 
-
         if (!this.onlineusersOnroom[roomId].includes(name)) {
             this.onlineusersOnroom[roomId].push(name);
         }
 
-
         client.join(roomId);
+
+        // Track which rooms this user is in
+        if(userId){
+            if(!this.userRooms.has(userId)){
+                this.userRooms.set(userId, new Set());
+            }
+            this.userRooms.get(userId)?.add(roomId);
+        }
 
         const usersInRoom = this.onlineusersOnroom[roomId];
         this.server.to(roomId).emit('roomUsers', usersInRoom);
 
         return { success: true, users: usersInRoom };
     }
+
 }

@@ -1,5 +1,5 @@
-import {Chip,Box,useMediaQuery} from '@mui/material';
-import {useEffect, useState} from "react";
+import {Chip,Box,useMediaQuery, Snackbar, Alert} from '@mui/material';
+import {useEffect, useState, useRef} from "react";
 //*******icons
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import DehazeIcon from '@mui/icons-material/Dehaze';
@@ -19,6 +19,8 @@ function Room() {
     const isMobile = useMediaQuery("(max-width:600px)");
     const drawerWidth = 230;
     const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+    const [alertMessage, setAlertMessage] = useState<{username: string, open: boolean, type: 'join' | 'leave'}>({username: '', open: false, type: 'join'});
+    const previousUsersRef = useRef<string[]>([]);
     const name=localStorage.getItem('name');
     const {slug} =useParams();
     const savedSlug=localStorage.getItem('roomLink');
@@ -57,6 +59,30 @@ function Room() {
 
         s.on('roomUsers', (users: string[]) => {
             console.log("Received roomUsers:", users);
+            
+            const previousUsers = previousUsersRef.current;
+            
+            // Check if a user left the room
+            if(previousUsers.length > 0 && users.length < previousUsers.length){
+                // Find which user left
+                const leftUser = previousUsers.find(user => !users.includes(user));
+                if(leftUser && leftUser !== name){
+                    // Show alert for user who left
+                    setAlertMessage({username: leftUser, open: true, type: 'leave'});
+                }
+            }
+            
+            // Check if a user joined the room
+            if(previousUsers.length > 0 && users.length > previousUsers.length){
+                // Find which user joined
+                const joinedUser = users.find(user => !previousUsers.includes(user));
+                if(joinedUser && joinedUser !== name){
+                    // Show alert for user who joined
+                    setAlertMessage({username: joinedUser, open: true, type: 'join'});
+                }
+            }
+            
+            previousUsersRef.current = users;
             setOnlineUsers(users);
         });
 
@@ -144,6 +170,21 @@ function Room() {
                 ))}
             </Box>
             <NumberPad open={opentest} onClose={()=>setOpentest(false)}/>
+            
+            <Snackbar
+                open={alertMessage.open}
+                autoHideDuration={3000}
+                onClose={() => setAlertMessage({username: '', open: false, type: 'join'})}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert 
+                    onClose={() => setAlertMessage({username: '', open: false, type: 'join'})} 
+                    severity={alertMessage.type === 'join' ? 'success' : 'info'}
+                    sx={{ width: '100%' }}
+                >
+                    {alertMessage.username} {alertMessage.type === 'join' ? 'joined' : 'left'} the room
+                </Alert>
+            </Snackbar>
         </Box>
     )
 }
