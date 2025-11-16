@@ -1,5 +1,5 @@
 import {Chip,Box,useMediaQuery} from '@mui/material';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 //*******icons
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import DehazeIcon from '@mui/icons-material/Dehaze';
@@ -9,15 +9,52 @@ import PersonIcon from '@mui/icons-material/Person';
 import MobileDrawer from "../drawers/MobileDrawer";
 import DesktopDrawer from "../drawers/DesktopDrawer";
 import NumberPad from "../numberPad";
+import {getSocket} from "../socket/index.ts";
 
 function Room() {
     const [openDrawerDesktop, setOpenDrawerDesktop] = useState(true);
     const [openDrawerMobile, setOpenDrawerMobile] = useState(true);
-    const [opentest,setOpentest]=useState(false);
+    const [opentest, setOpentest] = useState(false);
     const isMobile = useMediaQuery("(max-width:600px)");
     const drawerWidth = 230;
-    const members=['mahdi','ali','ehsan','asqar','akbar','soqra','kobra','mahdi','ali','ehsan','asqar','akbar','soqra','kobra'];
+    const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
+    useEffect(() => {
+        const s = getSocket();
+        if (!s) {
+            console.error("Socket is null. Cannot join room.");
+            return;
+        }
+
+        const connectHandler = () => {
+            const roomId = localStorage.getItem("roomLink");
+            const name = localStorage.getItem("name");
+
+            if (!roomId || !name) {
+                console.error("roomLink or name missing in localStorage");
+                return;
+            }
+
+            console.log("Emitting join-room:", { roomId, name });
+            s.emit('join-room', { roomId, name });
+        };
+
+        if (s.connected) {
+            connectHandler();
+        } else {
+            s.once('connect', connectHandler);
+        }
+
+        s.on('roomUsers', (users: string[]) => {
+            console.log("Received roomUsers:", users);
+            setOnlineUsers(users);
+        });
+
+        return () => {
+            s.off('connect', connectHandler);
+            s.off('roomUsers');
+        };
+    }, []);
 //@ts-ignore
     const handleExitClick = () => {
 
@@ -30,6 +67,7 @@ function Room() {
         {setOpenDrawerDesktop(false)
             setOpenDrawerMobile(false)}
     }
+    console.log(onlineUsers)
     return (
         <Box sx={{
             position: 'relative',
@@ -79,7 +117,7 @@ function Room() {
                     mr:{sm:openDrawerDesktop?`${drawerWidth}px`:0},
 
                 }}>
-                {members.map((index,key)=>(
+                {onlineUsers.map((index,key)=>(
                     <Box key={key} sx={{
                         display:'flex',
                         flexDirection:'column',

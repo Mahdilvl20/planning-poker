@@ -2,7 +2,7 @@ import {Box,TextField,Typography,Button,Divider,Chip,Snackbar,Alert} from '@mui/
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
 import {login} from "../../../api/api.ts";
-import {connectSocket} from "../socket/index.ts";
+import {initSocket} from "../socket/index.ts";
 
 
 
@@ -18,8 +18,9 @@ export default function Login(){
             const res= await login(email,password);
             localStorage.setItem("name",res.data.user.name);
             localStorage.setItem("access_token",res.data.access_token);
+
+            initSocket();
             setLoginSuccess(true)
-            connectSocket(res.data.access_token);
         }catch(err:any){
             setLoginFail(true)
             setResult(err.response.data.message);
@@ -28,7 +29,7 @@ export default function Login(){
     const handleloginsuccess=()=>{
         Navigate('/');
 
-        window.location.reload();
+       // window.location.reload();
         setLoginSuccess(false)
 
     }

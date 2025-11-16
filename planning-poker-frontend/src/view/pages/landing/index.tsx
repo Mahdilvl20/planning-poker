@@ -49,7 +49,7 @@ const LandingPage=()=>{
     const handleRoomFind=()=>{
         setRoomFind(false);
         Navigate(`room/${roomLinks}`);
-        window.location.reload();
+       // window.location.reload();
     }
     return (
        <Card sx={{
