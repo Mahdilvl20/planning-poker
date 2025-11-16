@@ -1,18 +1,31 @@
 import {Box, Drawer, ListItem, ListItemText, Tab, Tabs} from "@mui/material";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {getSocket} from "../../socket";
 
 export default function DesktopDrawer({open,onClose}:{open:any,onClose:any}){
     const [tab, setTab] = useState(0);
+    const [members, setMembers] = useState([]);
+    useEffect(() => {
+        if (!open) return;
+        const socket = getSocket();
+        const handleroomUsers=(users:string[])=>{
+            console.log("Received roomUsers:", users);
+            // @ts-ignore
+            setMembers(users);
+        }
+        socket?.on("roomUsers",handleroomUsers);
+        return () => {
+            socket?.off("roomUsers",handleroomUsers);
+        }
+    }, [open]);
+
+
     const drawerlist = (
         <div>
             sssssssssss
         </div>
     );
-    const members = [
-        {key: 1, name: 'ali'},
-        {key: 2, name: 'mahdi'},
-        {key: 3, name: 'test'},
-    ]
+
 
     return(
         <Drawer variant={'persistent'} open={open} anchor={'right'} onClose={onClose} PaperProps={{sx:{
@@ -32,7 +45,7 @@ export default function DesktopDrawer({open,onClose}:{open:any,onClose:any}){
             <Box sx={{ flex: 1, overflowY: "auto" }}>
                 {tab===0 && members.map((name,index)=>(
                     <ListItem key={index} component={'div'} >
-                        <ListItemText primary={name.name}/>
+                        <ListItemText primary={name}/>
                     </ListItem>
                 ))}
                 {tab===1 && <div>{drawerlist}</div>}

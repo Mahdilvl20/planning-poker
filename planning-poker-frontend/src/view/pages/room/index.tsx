@@ -77,7 +77,6 @@ function Room() {
         {setOpenDrawerDesktop(false)
             setOpenDrawerMobile(false)}
     }
-    console.log(onlineUsers)
     return (
         <Box sx={{
             position: 'relative',
