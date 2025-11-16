@@ -35,14 +35,16 @@ const LandingPage=()=>{
     const handleSearchRoom=async ()=>{
 
         try {
+            if(!localStorage.getItem('access_token')){
+                setLoginResults("please sign in");
+            }
             const res=await searchRoom(values);
             localStorage.setItem('roomLink',res.data.slug);
             setRoomLinks(res.data.slug);
             setRoomFind(true)
-            console.log(res.data.slug);
         } catch(err:any){
+            setLoginResults("room not found");
             setRoomNotFound(true);
-            console.log(err);
         }
 
     }
@@ -136,7 +138,7 @@ const LandingPage=()=>{
                onClose={()=>setRoomNotFound(false)}
                anchorOrigin={{vertical:'top',horizontal:'center'}}
            >
-               <Alert severity={'warning'}>Not Found</Alert>
+               <Alert severity={'warning'}>{loginResults}</Alert>
            </Snackbar>
        </Card>
    )
