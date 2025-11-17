@@ -39,6 +39,25 @@ const Header=()=>{
         };
         
         checkAuth();
+        
+        // گوش دادن به تغییرات localStorage
+        const handleStorageChange = () => {
+            checkAuth();
+        };
+        
+        window.addEventListener('storage', handleStorageChange);
+        
+        // همچنین یک custom event برای تغییرات localStorage در همان tab
+        const handleCustomStorageChange = () => {
+            checkAuth();
+        };
+        
+        window.addEventListener('localStorageChange', handleCustomStorageChange);
+        
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+            window.removeEventListener('localStorageChange', handleCustomStorageChange);
+        };
     }, [])
     const handleOnLogoClick=()=>{
         Navigate('/');
@@ -50,6 +69,8 @@ const Header=()=>{
     }
     const handleOnSignOutClick=()=>{
         localStorage.clear();
+        // ارسال event برای به‌روزرسانی Header
+        window.dispatchEvent(new Event('localStorageChange'));
         setLogin(false);
         window.location.reload();
     }
