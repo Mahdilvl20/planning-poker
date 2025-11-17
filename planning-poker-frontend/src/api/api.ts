@@ -13,17 +13,13 @@ api.interceptors.request.use((config)=>{
     return config;
 });
 
-// Response interceptor برای مدیریت خطاهای 401 (توکن منقضی شده)
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            // توکن منقضی شده یا نامعتبر است
             localStorage.removeItem('access_token');
             localStorage.removeItem('name');
-            // ارسال event برای به‌روزرسانی Header
             window.dispatchEvent(new Event('localStorageChange'));
-            // اگر در صفحه‌ای غیر از login/signup هستیم، به صفحه login هدایت می‌کنیم
             if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
                 window.location.href = '/';
             }

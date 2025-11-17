@@ -20,11 +20,9 @@ const Header=()=>{
                 return;
             }
             
-            // بررسی اعتبار توکن با استفاده از API me
             try {
                 const response = await me();
                 if (response.data.valid && response.data.user) {
-                    // توکن معتبر است
                     if (response.data.user.name) {
                         localStorage.setItem('name', response.data.user.name);
                     }
@@ -33,21 +31,18 @@ const Header=()=>{
                     setLogin(true);
                 }
             } catch (error) {
-                // توکن نامعتبر است
                 setLogin(true);
             }
         };
         
         checkAuth();
         
-        // گوش دادن به تغییرات localStorage
         const handleStorageChange = () => {
             checkAuth();
         };
         
         window.addEventListener('storage', handleStorageChange);
         
-        // همچنین یک custom event برای تغییرات localStorage در همان tab
         const handleCustomStorageChange = () => {
             checkAuth();
         };
@@ -69,7 +64,6 @@ const Header=()=>{
     }
     const handleOnSignOutClick=()=>{
         localStorage.clear();
-        // ارسال event برای به‌روزرسانی Header
         window.dispatchEvent(new Event('localStorageChange'));
         setLogin(false);
         window.location.reload();
