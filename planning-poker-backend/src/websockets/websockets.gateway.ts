@@ -97,4 +97,36 @@ export class WebsocketsGateway
         return { success: true, users: usersInRoom };
     }
 
+    @SubscribeMessage('leave-room')
+    handleLeaveRoom(
+        @MessageBody() data: { roomId: string; name: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        const { roomId, name } = data;
+        const userId = client.data.userId;
+
+        if (this.onlineusersOnroom[roomId]) {
+            this.onlineusersOnroom[roomId] = this.onlineusersOnroom[roomId].filter(
+                userName => userName !== name
+            );
+        }
+
+        client.leave(roomId);
+
+        if (userId) {
+            const userRoomIds = this.userRooms.get(userId);
+            if (userRoomIds) {
+                userRoomIds.delete(roomId);
+                if (userRoomIds.size === 0) {
+                    this.userRooms.delete(userId);
+                }
+            }
+        }
+
+        const usersInRoom = this.onlineusersOnroom[roomId] || [];
+        this.server.to(roomId).emit('roomUsers', usersInRoom);
+
+        return { success: true, users: usersInRoom };
+    }
+
 }

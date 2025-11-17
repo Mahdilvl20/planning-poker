@@ -10,7 +10,7 @@ import MobileDrawer from "../drawers/MobileDrawer";
 import DesktopDrawer from "../drawers/DesktopDrawer";
 import NumberPad from "../numberPad";
 import {getSocket} from "../socket/index.ts";
-import {useNavigate, useParams} from "react-router-dom";
+import {useNavigate, useParams, useLocation} from "react-router-dom";
 
 function Room() {
     const [openDrawerDesktop, setOpenDrawerDesktop] = useState(true);
@@ -21,16 +21,19 @@ function Room() {
     const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
     const [alertMessage, setAlertMessage] = useState<{username: string, open: boolean, type: 'join' | 'leave'}>({username: '', open: false, type: 'join'});
     const previousUsersRef = useRef<string[]>([]);
+    const isInRoomRef = useRef(false);
     const name=localStorage.getItem('name');
     const {slug} =useParams();
     const savedSlug=localStorage.getItem('roomLink');
     const navigate=useNavigate();
+    const location = useLocation();
     useEffect(() => {
         if (slug!==savedSlug){
             window.location.reload();
             navigate('*');
         }
     }, [slug,savedSlug,navigate]);
+    
     useEffect(() => {
         const s = getSocket();
         if (!s) {
@@ -53,8 +56,12 @@ function Room() {
 
         if (s.connected) {
             connectHandler();
+            isInRoomRef.current = true;
         } else {
-            s.once('connect', connectHandler);
+            s.once('connect', () => {
+                connectHandler();
+                isInRoomRef.current = true;
+            });
         }
 
         s.on('roomUsers', (users: string[]) => {
@@ -62,22 +69,16 @@ function Room() {
             
             const previousUsers = previousUsersRef.current;
             
-            // Check if a user left the room
             if(previousUsers.length > 0 && users.length < previousUsers.length){
-                // Find which user left
                 const leftUser = previousUsers.find(user => !users.includes(user));
                 if(leftUser && leftUser !== name){
-                    // Show alert for user who left
                     setAlertMessage({username: leftUser, open: true, type: 'leave'});
                 }
             }
             
-            // Check if a user joined the room
             if(previousUsers.length > 0 && users.length > previousUsers.length){
-                // Find which user joined
                 const joinedUser = users.find(user => !previousUsers.includes(user));
                 if(joinedUser && joinedUser !== name){
-                    // Show alert for user who joined
                     setAlertMessage({username: joinedUser, open: true, type: 'join'});
                 }
             }
@@ -86,11 +87,46 @@ function Room() {
             setOnlineUsers(users);
         });
 
+        const leaveRoom = () => {
+            const roomId = localStorage.getItem("roomLink");
+            const userName = localStorage.getItem("name");
+            if (roomId && userName && s && s.connected) {
+                s.emit('leave-room', { roomId, name: userName });
+            }
+        };
+
+        const handleBeforeUnload = () => {
+            leaveRoom();
+        };
+
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
         return () => {
+            if (isInRoomRef.current) {
+                leaveRoom();
+                isInRoomRef.current = false;
+            }
             s.off('connect', connectHandler);
             s.off('roomUsers');
+            window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, []);
+
+    useEffect(() => {
+        const s = getSocket();
+        if (!s) return;
+
+        return () => {
+            if (isInRoomRef.current && !location.pathname.includes('/room/')) {
+                const roomId = localStorage.getItem("roomLink");
+                const userName = localStorage.getItem("name");
+                if (roomId && userName && s.connected) {
+                    s.emit('leave-room', { roomId, name: userName });
+                    isInRoomRef.current = false;
+                }
+            }
+        };
+    }, [location.pathname]);
 //@ts-ignore
     const handleExitClick = () => {
 
