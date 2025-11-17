@@ -1,8 +1,17 @@
-import {Controller, Post, Body, BadRequestException, UnauthorizedException, ConflictException} from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    BadRequestException,
+    UnauthorizedException,
+    ConflictException,
+    Get, UseGuards, Req
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {UsersService} from "src/users/users.service";
 import {CreateUserDto} from "src/users/dto/create-user.dto";
 import {LoginDto} from "src/users/dto/login.dto";
+import {AuthGuard} from "@nestjs/passport";
 
 @Controller('auth')
 export class AuthController {
@@ -33,5 +42,15 @@ export class AuthController {
       const user=await this.authService.validateUser(loginDto.email,loginDto.password);
       if(!user) throw new UnauthorizedException('Invalid email or password');
       return this.authService.Login(user);
+    }
+
+
+    @UseGuards(AuthGuard('jwt'))
+    @Get('me')
+    me(@Req() req){
+      return {
+          valid:true,
+          user:req.user
+      }
     }
 }

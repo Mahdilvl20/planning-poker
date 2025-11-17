@@ -4,20 +4,42 @@ import LoginIcon from '@mui/icons-material/Login';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
+import {me} from "../../../api/api.ts";
 
 
 const Header=()=>{
     const isMobile = useMediaQuery("(max-width:600px)");
     const Navigate=useNavigate();
     const [Login,setLogin]=useState(false);
+
     useEffect(()=>{
-        const name=localStorage.getItem('name');
-        const token=localStorage.getItem('access_token');
-        if (!name && !token){
-            setLogin(true);
-        }
-        else setLogin(false);
-    })
+        const checkAuth = async () => {
+            const token=localStorage.getItem('access_token');
+            if (!token) {
+                setLogin(true);
+                return;
+            }
+            
+            // بررسی اعتبار توکن با استفاده از API me
+            try {
+                const response = await me();
+                if (response.data.valid && response.data.user) {
+                    // توکن معتبر است
+                    if (response.data.user.name) {
+                        localStorage.setItem('name', response.data.user.name);
+                    }
+                    setLogin(false);
+                } else {
+                    setLogin(true);
+                }
+            } catch (error) {
+                // توکن نامعتبر است
+                setLogin(true);
+            }
+        };
+        
+        checkAuth();
+    }, [])
     const handleOnLogoClick=()=>{
         Navigate('/');
         window.location.reload();
@@ -27,8 +49,7 @@ const Header=()=>{
         window.location.reload();
     }
     const handleOnSignOutClick=()=>{
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('name');
+        localStorage.clear();
         setLogin(false);
         window.location.reload();
     }
