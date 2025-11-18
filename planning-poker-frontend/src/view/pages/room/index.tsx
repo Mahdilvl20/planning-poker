@@ -65,7 +65,6 @@ function Room() {
         }
 
         s.on('roomUsers', (users: string[]) => {
-            console.log("Received roomUsers:", users);
             
             const previousUsers = previousUsersRef.current;
             

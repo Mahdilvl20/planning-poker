@@ -1,6 +1,7 @@
 import {Box, Drawer, ListItem, ListItemText, Tab, Tabs} from "@mui/material";
 import {useEffect, useState} from "react";
 import {getSocket} from "../../socket";
+import Chat from '../chat'
 
 export default function DesktopDrawer({open,onClose}:{open:any,onClose:any}){
     const [tab, setTab] = useState(0);
@@ -9,7 +10,7 @@ export default function DesktopDrawer({open,onClose}:{open:any,onClose:any}){
         if (!open) return;
         const socket = getSocket();
         const handleroomUsers=(users:string[])=>{
-            console.log("Received roomUsers:", users);
+
             // @ts-ignore
             setMembers(users);
         }
@@ -19,12 +20,6 @@ export default function DesktopDrawer({open,onClose}:{open:any,onClose:any}){
         }
     }, [open]);
 
-
-    const drawerlist = (
-        <div>
-            sssssssssss
-        </div>
-    );
 
 
     return(
@@ -48,7 +43,7 @@ export default function DesktopDrawer({open,onClose}:{open:any,onClose:any}){
                         <ListItemText primary={name}/>
                     </ListItem>
                 ))}
-                {tab===1 && <div>{drawerlist}</div>}
+                {tab===1 && <Chat roomId={localStorage.getItem('roomLink')||''} />}
             </Box>
         </Drawer>
     )

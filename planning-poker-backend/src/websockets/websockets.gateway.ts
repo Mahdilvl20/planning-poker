@@ -8,6 +8,7 @@ import {
 } from '@nestjs/websockets';
 import {Server,Socket} from "socket.io";
 import {JwtService} from "@nestjs/jwt";
+import {MessagesService} from "src/messages/messages.service";
 
 @WebSocketGateway({
     cors: {origin:'*'},
@@ -19,7 +20,7 @@ export class WebsocketsGateway
     private onlineUsers=new Map<number,string>();
     private onlineusersOnroom:Record<string, string[]>={};
     private userRooms=new Map<number, Set<string>>(); // userId -> Set of roomIds
-    constructor(private jwt:JwtService) {
+    constructor(private jwt:JwtService,private messageService:MessagesService) {
     }
     async handleConnection(client:Socket){
         try {
@@ -66,7 +67,7 @@ export class WebsocketsGateway
         }
     }
     @SubscribeMessage('join-room')
-    handleJoinRoom(
+     async handleJoinRoom(
         @MessageBody() data: { roomId: string; name: string },
         @ConnectedSocket() client: Socket,
     ) {
@@ -94,6 +95,20 @@ export class WebsocketsGateway
         const usersInRoom = this.onlineusersOnroom[roomId];
         this.server.to(roomId).emit('roomUsers', usersInRoom);
 
+        const previousMessages= await this.messageService.findByRoomId(roomId);
+        const formattedMessages = previousMessages.map(msg => ({
+            id: msg.id,
+            roomId: msg.roomId,
+            userId: msg.userId,
+            name: msg.name,
+            message: msg.message,
+            timestamp: msg.timestamp instanceof Date
+                ? msg.timestamp.toISOString()
+                : typeof msg.timestamp === 'string'
+                    ? msg.timestamp
+                    : new Date(msg.timestamp).toISOString(),
+        }));
+        client.emit('previous-messages', formattedMessages);
         return { success: true, users: usersInRoom };
     }
 
@@ -127,6 +142,61 @@ export class WebsocketsGateway
         this.server.to(roomId).emit('roomUsers', usersInRoom);
 
         return { success: true, users: usersInRoom };
+    }
+    @SubscribeMessage('send-message')
+    async handleSendMessage(
+        @MessageBody() data:{roomId:string,name:string,message:string},
+        @ConnectedSocket() client: Socket,
+    ) {
+        const {roomId,name,message} = data;
+        const userId = client.data.userId;
+        const savedMessage=await this.messageService.create({
+            roomId,
+            userId,
+            message,
+            name,
+        })
+        const messageData={
+            id:Date.now(),
+            roomId,
+            name,
+            message,
+            userId,
+            timestamp:new Date().toISOString(),
+        };
+
+        this.server.to(roomId).emit('new-message', messageData);
+
+        return { success: true, message:messageData };
+    }
+    @SubscribeMessage('get-previous-messages')
+    async handleGetPreviousMessages(
+        @MessageBody() data: { roomId: string },
+        @ConnectedSocket() client: Socket,
+    ) {
+        const { roomId } = data;
+
+
+        const previousMessages = await this.messageService.findByRoomId(roomId);
+
+        const formattedMessages = previousMessages.map(msg => ({
+            id: msg.id,
+            roomId: msg.roomId,
+            userId: msg.userId,
+            name: msg.name,
+            message: msg.message,
+            timestamp: msg.timestamp instanceof Date
+                ? msg.timestamp.toISOString()
+                : typeof msg.timestamp === 'string'
+                    ? msg.timestamp
+                    : new Date(msg.timestamp).toISOString(),
+        }));
+
+
+
+        client.emit('previous-messages', formattedMessages);
+
+        return { success: true, count: formattedMessages.length };
     }
 
 }
