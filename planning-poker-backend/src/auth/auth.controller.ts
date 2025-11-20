@@ -22,7 +22,7 @@ export class AuthController {
     @Post('register')
     async register(@Body() createUserDto: CreateUserDto) {
       if(!createUserDto.name || !createUserDto.email || !createUserDto.password){
-       //   return {error:'all fields are required',code:{id:1}}
+
           throw new BadRequestException('Username and password are required');
       }
       const userAlready=await this.usersService.findByEmail(createUserDto.email);

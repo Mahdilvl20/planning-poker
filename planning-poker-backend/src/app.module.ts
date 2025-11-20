@@ -11,11 +11,12 @@ import {TypeOrmModule} from '@nestjs/typeorm';
 import {User} from "src/users/entities/user.entity";
 import {Room} from "src/rooms/entities/room.entity";
 import {Message} from "src/messages/entities/message.entity";
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true,
-  }), AuthModule, UsersModule, RoomsModule, MessagesModule, WebsocketsModule,TypeOrmModule.forRoot({
+  }), ScheduleModule.forRoot(), AuthModule, UsersModule, RoomsModule, MessagesModule, WebsocketsModule,TypeOrmModule.forRoot({
       type: 'postgres',
       host:process.env.HOST,
       port: Number(process.env.DB_PORT),

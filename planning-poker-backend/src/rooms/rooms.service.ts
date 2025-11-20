@@ -47,6 +47,15 @@ export class RoomsService {
       });
     }
 
+    async deactivateRoom(slug: string) {
+        const room = await this.findById(slug);
+        if (room && room.isActive) {
+            room.isActive = false;
+            return this.roomRepository.save(room);
+        }
+        return null;
+    }
+
 
 
 }

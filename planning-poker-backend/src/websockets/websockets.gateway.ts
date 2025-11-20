@@ -10,6 +10,8 @@ import {Server,Socket} from "socket.io";
 import {JwtService} from "@nestjs/jwt";
 import {MessagesService} from "src/messages/messages.service";
 import {RoomsService} from "src/rooms/rooms.service";
+import {Cron, CronExpression} from "@nestjs/schedule";
+import {OnModuleInit} from "@nestjs/common";
 
 
 
@@ -23,17 +25,20 @@ interface RoomVoteState{
     cors: {origin:'*'},
 })
 export class WebsocketsGateway
-    implements OnGatewayConnection,OnGatewayDisconnect{
+    implements OnGatewayConnection,OnGatewayDisconnect, OnModuleInit{
     @WebSocketServer()
     server: Server;
     private onlineUsers=new Map<number,string>();
     private onlineusersOnroom:Record<string, string[]>={};
     private userRooms=new Map<number, Set<string>>(); // userId -> Set of roomIds
+    private roomLastActivity=new Map<string, Date>(); // roomId -> last activity time
     constructor(
         private jwt:JwtService,
         private messageService:MessagesService,
         private roomsService: RoomsService,
     ) {
+    }
+    onModuleInit() {
     }
     private async userIsRoomOwner(roomId: string, userId?: number): Promise<boolean>{
         if(!roomId || !userId) return false;
@@ -63,8 +68,7 @@ export class WebsocketsGateway
         
         if(userId){
             this.onlineUsers.delete(userId);
-            
-            // Remove user from all rooms they were in
+
             const userRoomIds = this.userRooms.get(userId);
             if(userRoomIds && userRoomIds.size > 0){
                 userRoomIds.forEach(roomId => {
@@ -73,14 +77,14 @@ export class WebsocketsGateway
                         this.onlineusersOnroom[roomId] = this.onlineusersOnroom[roomId].filter(
                             name => name !== username
                         );
-                        
-                        // Notify other users in the room
+
+                        this.roomLastActivity.set(roomId, new Date());
+
                         const updatedUsers = this.onlineusersOnroom[roomId];
                         this.server.to(roomId).emit('roomUsers', updatedUsers);
                     }
                 });
-                
-                // Clear user's rooms
+
                 this.userRooms.delete(userId);
             }
         }
@@ -97,18 +101,26 @@ export class WebsocketsGateway
             this.onlineusersOnroom[roomId] = [];
         }
 
+        const wasEmpty = this.onlineusersOnroom[roomId].length === 0;
+
         if (!this.onlineusersOnroom[roomId].includes(name)) {
             this.onlineusersOnroom[roomId].push(name);
         }
 
         client.join(roomId);
 
-        // Track which rooms this user is in
+
         if(userId){
             if(!this.userRooms.has(userId)){
                 this.userRooms.set(userId, new Set());
             }
             this.userRooms.get(userId)?.add(roomId);
+        }
+
+        if (wasEmpty || !this.roomLastActivity.has(roomId)) {
+            this.roomLastActivity.set(roomId, new Date());
+        } else {
+            this.roomLastActivity.set(roomId, new Date());
         }
 
         const usersInRoom = this.onlineusersOnroom[roomId];
@@ -156,6 +168,8 @@ export class WebsocketsGateway
                 }
             }
         }
+
+        this.roomLastActivity.set(roomId, new Date());
 
         const usersInRoom = this.onlineusersOnroom[roomId] || [];
         this.server.to(roomId).emit('roomUsers', usersInRoom);
@@ -281,6 +295,33 @@ export class WebsocketsGateway
 
 
             this.server.to(roomId).emit('vote-reveal',this.roomVotes[roomId].votes);
+        }
+    }
+
+    @Cron(CronExpression.EVERY_5_MINUTES)
+    async cleanupEmptyRooms() {
+        const now = new Date();
+        const FIFTEEN_MINUTES = 15 * 60 * 1000;
+
+        for (const [roomId, lastActivity] of this.roomLastActivity.entries()) {
+            const usersInRoom = this.onlineusersOnroom[roomId] || [];
+
+            if (usersInRoom.length === 0) {
+                const timeSinceLastActivity = now.getTime() - lastActivity.getTime();
+                
+                if (timeSinceLastActivity >= FIFTEEN_MINUTES) {
+                    try {
+                        await this.roomsService.deactivateRoom(roomId);
+                        console.log(`Room ${roomId} deactivated after being empty for 15 minutes`);
+
+                        this.roomLastActivity.delete(roomId);
+                        delete this.onlineusersOnroom[roomId];
+                        delete this.roomVotes[roomId];
+                    } catch (error) {
+                        console.error(`Error deactivating room ${roomId}:`, error);
+                    }
+                }
+            }
         }
     }
 
