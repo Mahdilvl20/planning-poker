@@ -1,14 +1,26 @@
 import {Box, Chip} from "@mui/material";
 import {useState} from "react";
+import {getSocket} from "../socket";
 
 
 export default function NumberPad({open,onClose}:{open:any,onClose:any}){
     if (!open) return null;
     const numbers=['?',1,2,3,5,8,13,21,34,55,89,'∞'];
-    const [selectedindex,setSelectIndex]=useState(null);
-    //@ts-ignore
-    const handletest=()=>{
+    const [selectedindex,setSelectIndex]=useState<number|null>(null);
 
+    //@ts-ignore
+    const handleSubmit=()=>{
+        if(selectedindex===null)return;
+        const s=getSocket();
+        const roomid=localStorage.getItem("roomLink");
+        const selectedValue=numbers[selectedindex];
+        if(s && roomid){
+            s.emit('submit-vote',{
+                roomid,
+                vote:selectedValue,
+            });
+            onClose();
+        }
     }
     return(
         <Box sx={{
@@ -17,6 +29,7 @@ export default function NumberPad({open,onClose}:{open:any,onClose:any}){
             height:'100vh',
             alignItems:'center',
             justifyContent:'center',
+            position:'fixed',
             background: 'rgba(0, 0, 0, 0.3)',
             backdropFilter: 'blur(15px)',
             WebkitBackdropFilter: 'blur(15px)',
@@ -32,7 +45,7 @@ export default function NumberPad({open,onClose}:{open:any,onClose:any}){
         }}>
             {numbers.map((value,index)=>(
                 <Chip key={index}
-                      variant={'outlined'}
+                      variant={selectedindex===index?'filled':'outlined'}
                       sx={{
                           fontSize: 18,
                           transition: 'all .2s',
@@ -44,7 +57,7 @@ export default function NumberPad({open,onClose}:{open:any,onClose:any}){
                       //@ts-ignore
                       onClick={()=>setSelectIndex(index)} />
             ))}
-            <Chip label={'Submit'} sx={{backgroundColor:'green',fontWeight:'bold'}} onClick={onClose}/>
+            <Chip label={'Submit'} sx={{backgroundColor:'green',fontWeight:'bold'}} onClick={handleSubmit}/>
         </Box>
         </Box>
     )

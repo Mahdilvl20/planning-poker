@@ -2,6 +2,7 @@
 import {Box, ListItem, ListItemText, SwipeableDrawer, Tab, Tabs} from "@mui/material";
 import {useEffect, useState} from "react";
 import {getSocket} from "../../socket";
+import Chat from "../chat";
 
 export default function MobileDrawer({open,onClose}:{open:any,onClose:any}){
     const [tab, setTab] = useState(0);
@@ -19,11 +20,7 @@ export default function MobileDrawer({open,onClose}:{open:any,onClose:any}){
             socket?.off("roomUsers",handleroomUsers);
         }
     }, [open]);
-    const drawerlist = (
-        <div>
-            sssssssssss
-        </div>
-    );
+
 
     return(
         <SwipeableDrawer variant={'persistent'} anchor={'bottom'} open={open}
@@ -31,7 +28,7 @@ export default function MobileDrawer({open,onClose}:{open:any,onClose:any}){
             sx: {
                 display: "flex",
                 flexDirection: "column",
-                height:'25vh'
+                height:'50vh'
             }
         }} onOpen={function (): void {
             throw new Error("Function not implemented.");
@@ -46,7 +43,7 @@ export default function MobileDrawer({open,onClose}:{open:any,onClose:any}){
                         <ListItemText primary={name}/>
                     </ListItem>
                 ))}
-                {tab===1 && <div>{drawerlist}</div>}
+                {tab===1 && <Chat roomId={localStorage.getItem('roomLink')||''} />}
             </Box>
         </SwipeableDrawer>
     )

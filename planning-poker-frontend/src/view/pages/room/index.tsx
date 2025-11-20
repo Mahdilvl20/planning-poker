@@ -1,10 +1,11 @@
-import {Chip,Box,useMediaQuery, Snackbar, Alert} from '@mui/material';
+import {Chip,Box,useMediaQuery, Snackbar, Alert,Typography} from '@mui/material';
 import {useEffect, useState, useRef} from "react";
 //*******icons
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import DehazeIcon from '@mui/icons-material/Dehaze';
 import PersonIcon from '@mui/icons-material/Person';
-
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 //*******Drawer
 import MobileDrawer from "../drawers/MobileDrawer";
 import DesktopDrawer from "../drawers/DesktopDrawer";
@@ -16,6 +17,8 @@ function Room() {
     const [openDrawerDesktop, setOpenDrawerDesktop] = useState(true);
     const [openDrawerMobile, setOpenDrawerMobile] = useState(true);
     const [opentest, setOpentest] = useState(false);
+    const [votedUsers,setVotedUsers] = useState<string[]>([]);
+    const [revealedVotes, setRevealedVotes] = useState<Record<string, any> | null>(null);
     const isMobile = useMediaQuery("(max-width:600px)");
     const drawerWidth = 230;
     const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
@@ -85,6 +88,19 @@ function Room() {
             previousUsersRef.current = users;
             setOnlineUsers(users);
         });
+        s.on('vote-started',()=>{
+            setOpentest(true);
+            setVotedUsers([])
+            setRevealedVotes(null)
+        });
+        s.on('vote-status-update',(userIds: string[]) => {
+            setVotedUsers(userIds)
+        });
+
+        s.on('vote-reveal',(votes:Record<string, any>) => {
+            setOpentest(false);
+            setRevealedVotes(votes);
+        })
 
         const leaveRoom = () => {
             const roomId = localStorage.getItem("roomLink");
@@ -128,7 +144,8 @@ function Room() {
     }, [location.pathname]);
 //@ts-ignore
     const handleExitClick = () => {
-
+        navigate('/');
+        window.removeEventListener('beforeunload', handleExitClick);
     }
     const handleSideBarClick = () => {
         if (!openDrawerDesktop && !openDrawerMobile) {
@@ -138,6 +155,20 @@ function Room() {
         {setOpenDrawerDesktop(false)
             setOpenDrawerMobile(false)}
     }
+    const handleStartVote=()=>{
+        const s=getSocket();
+        const roomId = localStorage.getItem("roomLink");
+        if(s && roomId){
+            s.emit('open-vote', {roomId});
+        }
+    }
+    const handleRevealIds=()=>{
+        const s=getSocket()
+        const roomId = localStorage.getItem("roomLink");
+        if(s && roomId){
+            s.emit('reveal-vote', {roomId});
+        }
+    }
     return (
         <Box sx={{
             position: 'relative',
@@ -146,12 +177,26 @@ function Room() {
         }} >
             <Chip sx={{
                 position: 'absolute',
+                right: 175,
+                mt: 2,
+                fontWeight: 'bolder',
+                height: 'content'
+            }} label={'start vote'} variant={'filled'} color={'success'} onClick={handleStartVote}/>
+            <Chip sx={{
+                position: 'absolute',
+                right:{xs:10,sm:270},
+                mt: {xs:8,sm:2},
+                fontWeight: 'bolder',
+                height: 'content'
+            }} label={'reveal vote'} variant={'filled'} color={'secondary'} onClick={handleRevealIds}/>
+            <Chip sx={{
+                position: 'absolute',
                 right: 80,
                 mt: 2,
                 fontWeight: 'bolder',
                 height: 'content'
             }} label={'EXIT'} variant={'filled'} icon={<HighlightOffIcon color={'error'} fontSize={'large'}/>}
-                  onClick={()=>setOpentest(true)} />
+                  onClick={handleExitClick} />
             <Chip sx={{
                 position: 'absolute',
                 right: 10,
@@ -199,8 +244,14 @@ function Room() {
                         width:{xs:'120px',sm:'190px'},
                         height:{xs:'12vh',sm:'19vh'}
                     }}>
+                        {revealedVotes?(
+                            <Typography variant={'h4'} color={'white'} sx={{fontWeight:'bold'}}>
+                                ?
+                            </Typography>
+                        ):(
                         <PersonIcon fontSize={'large'}/>
-                        {index}
+                        )}
+                        <Typography sx={{mt:1,color:'white'}}>{index}</Typography>
                     </Box>
                 ))}
             </Box>

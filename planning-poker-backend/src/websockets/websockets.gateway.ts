@@ -10,6 +10,14 @@ import {Server,Socket} from "socket.io";
 import {JwtService} from "@nestjs/jwt";
 import {MessagesService} from "src/messages/messages.service";
 
+
+
+
+interface RoomVoteState{
+    isOpen: boolean;
+    revealed:boolean;
+    votes:Record<string,string | number>;
+}
 @WebSocketGateway({
     cors: {origin:'*'},
 })
@@ -197,6 +205,58 @@ export class WebsocketsGateway
         client.emit('previous-messages', formattedMessages);
 
         return { success: true, count: formattedMessages.length };
+    }
+    private roomVotes :Record<string, RoomVoteState>={};
+    @SubscribeMessage('open-vote')
+    async handleOpenVote(
+        @MessageBody() data: { roomId: string },
+        @ConnectedSocket() client: Socket,
+    ){
+        const { roomId } = data;
+
+        this.roomVotes[roomId]={
+            isOpen:true,
+            revealed:false,
+            votes:{}
+        }
+        this.server.to(roomId).emit('vote-started');
+
+        this.server.to(roomId).emit('vote-update',{});
+
+    }
+
+    @SubscribeMessage('submit-vote')
+    handleSubmitVote(
+        @MessageBody() data: { roomId: string,vote:string | number },
+        @ConnectedSocket() client: Socket,) {
+        const { roomId,vote } = data;
+        const userId = client.data.userId;
+
+        if(!this.roomVotes[roomId]) return;
+
+        this.roomVotes[roomId].votes[userId] = vote;
+
+        if(!this.roomVotes[roomId].revealed){
+            const votedUserIds=Object.keys(this.roomVotes[roomId].votes);
+            this.server.to(roomId).emit('vote-status-update',votedUserIds);
+        }else {
+            this.server.to(roomId).emit('vote-update',this.roomVotes[roomId].votes);
+        }
+    }
+
+    @SubscribeMessage('reveal-vote')
+    handleRevealVote(
+        @MessageBody() data: { roomId: string },
+        @ConnectedSocket() client: Socket,
+    ){
+        const { roomId } = data;
+        if (this.roomVotes[roomId]){
+            this.roomVotes[roomId].revealed=true;
+            this.roomVotes[roomId].isOpen=false;
+
+
+            this.server.to(roomId).emit('vote-reveal',this.roomVotes[roomId].votes);
+        }
     }
 
 }
