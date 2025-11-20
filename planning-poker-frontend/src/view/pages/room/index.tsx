@@ -115,7 +115,6 @@ function Room() {
         };
 
         window.addEventListener('beforeunload', handleBeforeUnload);
-
         return () => {
             if (isInRoomRef.current) {
                 leaveRoom();
@@ -168,6 +167,7 @@ function Room() {
         if(s && roomId){
             s.emit('reveal-vote', {roomId});
         }
+        console.log(votedUsers)
     }
     return (
         <Box sx={{
@@ -232,8 +232,8 @@ function Room() {
                     mr:{sm:openDrawerDesktop?`${drawerWidth}px`:0},
 
                 }}>
-                {onlineUsers.map((index,key)=>(
-                    <Box key={key} sx={{
+                {onlineUsers.map((username)=>(
+                    <Box key={username} sx={{
                         display:'flex',
                         flexDirection:'column',
                         alignItems:'center',
@@ -246,12 +246,14 @@ function Room() {
                     }}>
                         {revealedVotes?(
                             <Typography variant={'h4'} color={'white'} sx={{fontWeight:'bold'}}>
-                                ?
+                                {revealedVotes?.[username] ?? '-'}
                             </Typography>
                         ):(
-                        <PersonIcon fontSize={'large'}/>
+                            votedUsers.includes(username)
+                                ? <CheckCircleIcon fontSize={'large'} color={'success'}/>
+                                : <PersonIcon fontSize={'large'}/>
                         )}
-                        <Typography sx={{mt:1,color:'white'}}>{index}</Typography>
+                        <Typography sx={{mt:1,color:'white'}}>{username}</Typography>
                     </Box>
                 ))}
             </Box>

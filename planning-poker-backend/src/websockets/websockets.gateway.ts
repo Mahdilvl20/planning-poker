@@ -231,14 +231,15 @@ export class WebsocketsGateway
         @ConnectedSocket() client: Socket,) {
         const { roomId,vote } = data;
         const userId = client.data.userId;
+        const username = client.data.username || (userId ? `User${userId}` : client.id);
 
         if(!this.roomVotes[roomId]) return;
 
-        this.roomVotes[roomId].votes[userId] = vote;
+        this.roomVotes[roomId].votes[username] = vote;
 
         if(!this.roomVotes[roomId].revealed){
-            const votedUserIds=Object.keys(this.roomVotes[roomId].votes);
-            this.server.to(roomId).emit('vote-status-update',votedUserIds);
+            const votedUsernames=Object.keys(this.roomVotes[roomId].votes);
+            this.server.to(roomId).emit('vote-status-update',votedUsernames);
         }else {
             this.server.to(roomId).emit('vote-update',this.roomVotes[roomId].votes);
         }

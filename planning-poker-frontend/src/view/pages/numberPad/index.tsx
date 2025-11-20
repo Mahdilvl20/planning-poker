@@ -12,11 +12,11 @@ export default function NumberPad({open,onClose}:{open:any,onClose:any}){
     const handleSubmit=()=>{
         if(selectedindex===null)return;
         const s=getSocket();
-        const roomid=localStorage.getItem("roomLink");
+        const roomId=localStorage.getItem("roomLink");
         const selectedValue=numbers[selectedindex];
-        if(s && roomid){
+        if(s && roomId){
             s.emit('submit-vote',{
-                roomid,
+                roomId,
                 vote:selectedValue,
             });
             onClose();
