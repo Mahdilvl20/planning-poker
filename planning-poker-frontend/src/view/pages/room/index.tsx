@@ -4,7 +4,6 @@ import {useEffect, useState, useRef} from "react";
 import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 import DehazeIcon from '@mui/icons-material/Dehaze';
 import PersonIcon from '@mui/icons-material/Person';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 //*******Drawer
 import MobileDrawer from "../drawers/MobileDrawer";
@@ -22,6 +21,8 @@ function Room() {
     const isMobile = useMediaQuery("(max-width:600px)");
     const drawerWidth = 230;
     const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
+    const [isRoomOwner] = useState<boolean>(()=>localStorage.getItem('isRoomOwner') === 'true');
+    const [voteError,setVoteError] = useState<string | null>(null);
     const [alertMessage, setAlertMessage] = useState<{username: string, open: boolean, type: 'join' | 'leave'}>({username: '', open: false, type: 'join'});
     const previousUsersRef = useRef<string[]>([]);
     const isInRoomRef = useRef(false);
@@ -52,8 +53,6 @@ function Room() {
                 console.error("roomLink or name missing in localStorage");
                 return;
             }
-
-            console.log("Emitting join-room:", { roomId, name });
             s.emit('join-room', { roomId, name });
         };
 
@@ -101,6 +100,10 @@ function Room() {
             setOpentest(false);
             setRevealedVotes(votes);
         })
+        const voteErrorHandler = (payload:{message?:string})=>{
+            setVoteError(payload?.message ?? 'Only the room owner can control voting.');
+        };
+        s.on('vote-error',voteErrorHandler);
 
         const leaveRoom = () => {
             const roomId = localStorage.getItem("roomLink");
@@ -122,6 +125,7 @@ function Room() {
             }
             s.off('connect', connectHandler);
             s.off('roomUsers');
+            s.off('vote-error',voteErrorHandler);
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, []);
@@ -155,6 +159,7 @@ function Room() {
             setOpenDrawerMobile(false)}
     }
     const handleStartVote=()=>{
+        if(!isRoomOwner) return;
         const s=getSocket();
         const roomId = localStorage.getItem("roomLink");
         if(s && roomId){
@@ -162,12 +167,12 @@ function Room() {
         }
     }
     const handleRevealIds=()=>{
+        if(!isRoomOwner) return;
         const s=getSocket()
         const roomId = localStorage.getItem("roomLink");
         if(s && roomId){
             s.emit('reveal-vote', {roomId});
         }
-        console.log(votedUsers)
     }
     return (
         <Box sx={{
@@ -175,20 +180,24 @@ function Room() {
             width: '100%',
             height: {xs: '8vh', sm: '7vh'},
         }} >
-            <Chip sx={{
-                position: 'absolute',
-                right: 175,
-                mt: 2,
-                fontWeight: 'bolder',
-                height: 'content'
-            }} label={'start vote'} variant={'filled'} color={'success'} onClick={handleStartVote}/>
-            <Chip sx={{
-                position: 'absolute',
-                right:{xs:10,sm:270},
-                mt: {xs:8,sm:2},
-                fontWeight: 'bolder',
-                height: 'content'
-            }} label={'reveal vote'} variant={'filled'} color={'secondary'} onClick={handleRevealIds}/>
+            {isRoomOwner && (
+                <>
+                    <Chip sx={{
+                        position: 'absolute',
+                        right: 175,
+                        mt: 2,
+                        fontWeight: 'bolder',
+                        height: 'content'
+                    }} label={'start vote'} variant={'filled'} color={'success'} onClick={handleStartVote}/>
+                    <Chip sx={{
+                        position: 'absolute',
+                        right:{xs:10,sm:270},
+                        mt: {xs:8,sm:2},
+                        fontWeight: 'bolder',
+                        height: 'content'
+                    }} label={'reveal vote'} variant={'filled'} color={'secondary'} onClick={handleRevealIds}/>
+                </>
+            )}
             <Chip sx={{
                 position: 'absolute',
                 right: 80,
@@ -271,6 +280,20 @@ function Room() {
                     sx={{ width: '100%' }}
                 >
                     {alertMessage.username} {alertMessage.type === 'join' ? 'joined' : 'left'} the room
+                </Alert>
+            </Snackbar>
+            <Snackbar
+                open={Boolean(voteError)}
+                autoHideDuration={4000}
+                onClose={() => setVoteError(null)}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={() => setVoteError(null)}
+                    severity={'warning'}
+                    sx={{ width: '100%' }}
+                >
+                    {voteError}
                 </Alert>
             </Snackbar>
         </Box>

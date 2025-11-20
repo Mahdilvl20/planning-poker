@@ -9,6 +9,7 @@ import {
 import {Server,Socket} from "socket.io";
 import {JwtService} from "@nestjs/jwt";
 import {MessagesService} from "src/messages/messages.service";
+import {RoomsService} from "src/rooms/rooms.service";
 
 
 
@@ -28,7 +29,17 @@ export class WebsocketsGateway
     private onlineUsers=new Map<number,string>();
     private onlineusersOnroom:Record<string, string[]>={};
     private userRooms=new Map<number, Set<string>>(); // userId -> Set of roomIds
-    constructor(private jwt:JwtService,private messageService:MessagesService) {
+    constructor(
+        private jwt:JwtService,
+        private messageService:MessagesService,
+        private roomsService: RoomsService,
+    ) {
+    }
+    private async userIsRoomOwner(roomId: string, userId?: number): Promise<boolean>{
+        if(!roomId || !userId) return false;
+        const room = await this.roomsService.findById(roomId);
+        if(!room || !room.creator) return false;
+        return room.creator.id === userId;
     }
     async handleConnection(client:Socket){
         try {
@@ -213,6 +224,13 @@ export class WebsocketsGateway
         @ConnectedSocket() client: Socket,
     ){
         const { roomId } = data;
+        const userId = client.data.userId;
+
+        const isOwner = await this.userIsRoomOwner(roomId, userId);
+        if(!isOwner){
+            client.emit('vote-error',{message:'Only the room creator can control voting.'});
+            return;
+        }
 
         this.roomVotes[roomId]={
             isOpen:true,
@@ -246,11 +264,17 @@ export class WebsocketsGateway
     }
 
     @SubscribeMessage('reveal-vote')
-    handleRevealVote(
+    async handleRevealVote(
         @MessageBody() data: { roomId: string },
         @ConnectedSocket() client: Socket,
     ){
         const { roomId } = data;
+        const userId = client.data.userId;
+        const isOwner = await this.userIsRoomOwner(roomId, userId);
+        if(!isOwner){
+            client.emit('vote-error',{message:'Only the room creator can control voting.'});
+            return;
+        }
         if (this.roomVotes[roomId]){
             this.roomVotes[roomId].revealed=true;
             this.roomVotes[roomId].isOpen=false;

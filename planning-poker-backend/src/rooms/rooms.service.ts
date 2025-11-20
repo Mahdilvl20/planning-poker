@@ -37,6 +37,7 @@ export class RoomsService {
         if (!slug) return null;
         return this.roomRepository.findOne({
           where:{slug:slug},
+            relations:{creator:true},
       });
     }
 

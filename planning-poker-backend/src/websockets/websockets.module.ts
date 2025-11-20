@@ -5,6 +5,7 @@ import {JwtModule} from "@nestjs/jwt";
 import {AuthModule} from "src/auth/auth.module";
 import {ConfigModule, ConfigService} from "@nestjs/config";
 import {MessagesModule} from "src/messages/messages.module";
+import {RoomsModule} from "src/rooms/rooms.module";
 
 @Module({
     imports: [AuthModule,JwtModule.registerAsync({
@@ -15,7 +16,8 @@ import {MessagesModule} from "src/messages/messages.module";
         }),
         inject: [ConfigService],
     }),
-        MessagesModule
+        MessagesModule,
+        RoomsModule
     ],
     providers: [WebsocketsGateway, WebsocketsService],
 })

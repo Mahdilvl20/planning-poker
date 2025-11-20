@@ -11,7 +11,6 @@ export default function MobileDrawer({open,onClose}:{open:any,onClose:any}){
         if (!open) return;
         const socket = getSocket();
         const handleroomUsers=(users:string[])=>{
-            console.log("Received roomUsers:", users);
             // @ts-ignore
             setMembers(users);
         }

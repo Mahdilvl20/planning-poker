@@ -40,6 +40,7 @@ const LandingPage=()=>{
             }
             const res=await searchRoom(values);
             localStorage.setItem('roomLink',res.data.slug);
+            localStorage.setItem('isRoomOwner','false');
             setRoomLinks(res.data.slug);
             setRoomFind(true)
         } catch(err:any){
