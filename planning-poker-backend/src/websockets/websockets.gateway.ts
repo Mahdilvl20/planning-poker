@@ -303,25 +303,54 @@ export class WebsocketsGateway
         const now = new Date();
         const FIFTEEN_MINUTES = 15 * 60 * 1000;
 
-        for (const [roomId, lastActivity] of this.roomLastActivity.entries()) {
-            const usersInRoom = this.onlineusersOnroom[roomId] || [];
+        try {
+            // Get all active rooms from database
+            const allActiveRooms = await this.roomsService.findAllActive();
 
-            if (usersInRoom.length === 0) {
-                const timeSinceLastActivity = now.getTime() - lastActivity.getTime();
-                
-                if (timeSinceLastActivity >= FIFTEEN_MINUTES) {
-                    try {
-                        await this.roomsService.deactivateRoom(roomId);
-                        console.log(`Room ${roomId} deactivated after being empty for 15 minutes`);
+            for (const room of allActiveRooms) {
+                const roomSlug = room.slug;
+                const usersInRoom = this.onlineusersOnroom[roomSlug] || [];
 
-                        this.roomLastActivity.delete(roomId);
-                        delete this.onlineusersOnroom[roomId];
-                        delete this.roomVotes[roomId];
-                    } catch (error) {
-                        console.error(`Error deactivating room ${roomId}:`, error);
+                // If room is empty
+                if (usersInRoom.length === 0) {
+                    let shouldDeactivate = false;
+                    let timeSinceLastActivity = 0;
+
+                    // Check if room has activity history
+                    if (this.roomLastActivity.has(roomSlug)) {
+                        const lastActivity = this.roomLastActivity.get(roomSlug);
+                        // @ts-ignore
+                        timeSinceLastActivity = now.getTime() - lastActivity.getTime();
+                        
+                        if (timeSinceLastActivity >= FIFTEEN_MINUTES) {
+                            shouldDeactivate = true;
+                        }
+                    } else {
+                        // Room was never joined, check creation time
+                        const timeSinceCreation = now.getTime() - room.createdAt.getTime();
+                        if (timeSinceCreation >= FIFTEEN_MINUTES) {
+                            shouldDeactivate = true;
+                        }
+                    }
+
+                    if (shouldDeactivate) {
+                        try {
+                            await this.roomsService.deactivateRoom(roomSlug);
+                            // Delete all messages from this room
+                            await this.messageService.deleteByRoomId(roomSlug);
+                            console.log(`Room ${roomSlug} (${room.name}) deactivated and messages deleted after being empty for 15 minutes`);
+
+                            this.roomLastActivity.delete(roomSlug);
+                            delete this.onlineusersOnroom[roomSlug];
+                            delete this.roomVotes[roomSlug];
+                        } catch (error) {
+                            console.error(`Error deactivating room ${roomSlug}:`, error);
+                        }
                     }
                 }
             }
+        } catch (error) {
+            console.error('Error in cleanupEmptyRooms:', error);
         }
     }
 

@@ -24,6 +24,10 @@ export class MessagesService {
         });
   }
 
+  async deleteByRoomId(roomId: string): Promise<void> {
+        await this.messageRepository.delete({ roomId });
+  }
+
   findAll() {
     return `This action returns all messages`;
   }

@@ -56,7 +56,7 @@ export class RoomsController {
       return searchRoom;
     }
 
-    @Get()
+    @Get('/get')
     async findAll(){
       return this.roomsService.findAllActive();
     }
