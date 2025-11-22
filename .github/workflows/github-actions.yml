@@ -1,1 +1,6 @@
-
+name: DockerFile
+on: push
+jobs:
+  dockerUp:
+    runs-on: ubuntu-latest
+    steps:
