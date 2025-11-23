@@ -31,12 +31,12 @@ jobs:
 
       - name: Build and test Docker Compose
         run: |
-          docker-compose config
-          docker-compose build --no-cache
-          docker-compose up -d
+          docker compose config
+          docker compose build --no-cache
+          docker compose up -d
           sleep 10
-          docker-compose ps
-          docker-compose down
+          docker compose ps
+          docker compose down
 
       - name: Build Backend Docker Image (if Dockerfile exists)
         if: false  # Set to true when you create Dockerfile for backend
