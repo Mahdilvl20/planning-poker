@@ -1,0 +1,111 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Build Backend
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: planning-poker-backend/package-lock.json
+
+      - name: Install backend dependencies
+        working-directory: ./planning-poker-backend
+        run: npm ci
+
+      - name: Build backend
+        working-directory: ./planning-poker-backend
+        run: npm run build
+
+      # Build Frontend
+      - name: Setup Node.js for Frontend
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: planning-poker-frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: ./planning-poker-frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: ./planning-poker-frontend
+        run: npm run build
+
+      # Prepare deployment package
+      - name: Create deployment archive
+        run: |
+          mkdir -p deploy-package/backend deploy-package/frontend
+          cp -r planning-poker-backend/dist deploy-package/backend/
+          cp planning-poker-backend/package*.json deploy-package/backend/
+          cp -r planning-poker-frontend/dist/* deploy-package/frontend/
+
+      # Deploy to Server
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_PRIVATE_KEY }}
+
+      - name: Add server to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+
+      - name: Deploy files to server
+        run: |
+          # Create directories
+          ssh deploy@${{ secrets.SERVER_IP }} "mkdir -p /var/www/plan.ir/{backend,frontend}"
+
+          # Deploy backend
+          rsync -avz --delete \
+            deploy-package/backend/ \
+            deploy@${{ secrets.SERVER_IP }}:/var/www/plan.ir/backend/
+
+          # Deploy frontend
+          rsync -avz --delete \
+            deploy-package/frontend/ \
+            deploy@${{ secrets.SERVER_IP }}:/var/www/plan.ir/frontend/
+
+      - name: Install dependencies and restart services
+        run: |
+          ssh deploy@${{ secrets.SERVER_IP }} << 'ENDSSH'
+            set -e
+            cd /var/www/plan.ir/backend
+            
+            # Install production dependencies
+            npm ci --production --no-audit
+            
+            # Restart backend service
+            # Option 1: Using PM2 (recommended)
+            if command -v pm2 &> /dev/null; then
+              pm2 restart planning-poker-backend || \
+              pm2 start dist/main.js --name planning-poker-backend --interpreter node
+              pm2 save
+            # Option 2: Using systemd
+            elif systemctl is-active --quiet planning-poker-backend; then
+              sudo systemctl restart planning-poker-backend
+            # Option 3: Manual restart (fallback)
+            else
+              pkill -f "node.*dist/main" || true
+              nohup node dist/main.js > /var/www/plan.ir/backend/app.log 2>&1 &
+            fi
+            
+            # Reload Nginx
+            sudo nginx -t && sudo systemctl reload nginx
+          ENDSSH
+
