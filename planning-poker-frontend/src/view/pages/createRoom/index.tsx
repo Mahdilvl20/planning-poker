@@ -8,7 +8,7 @@ import {createRoom} from "../../../api/api.ts";
 function CreateRoom({open,onClose}:{open:boolean,onClose:()=>void}){
     if (!open) return null;
     const [openS,setopenS]=useState(false);
-    const [name,setName]=useState("test");
+    const [name]=useState("test");
     const [roomLink,setRoomLink]=useState("");
     const handleGetRoomLink= async ()=>{
         try {

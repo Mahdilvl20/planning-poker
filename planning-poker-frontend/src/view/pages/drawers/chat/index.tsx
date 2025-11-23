@@ -2,6 +2,13 @@ import {Box,List,ListItem,Paper,ListItemText,TextField,Button} from '@mui/materi
 import {useEffect, useRef, useState} from "react";
 import {getSocket} from "../../socket";
 
+interface MessageInput {
+    id:number;
+    message:string;
+    name:string;
+    timestamp:string | Date | number;
+}
+
 interface Message {
     id:number;
     message:string;
@@ -28,7 +35,7 @@ export default function Chat({roomId}:{roomId:string}){
         const requestPreviousMessages = () => {
             socket.emit('get-previous-messages', { roomId });
         };
-        const handlePreviousMessages=(previousMessage:Message[]) => {
+        const handlePreviousMessages=(previousMessage:MessageInput[]) => {
             setMessages(previousMessage.map(msg => ({
                 id: msg.id,
                 message: msg.message,
@@ -37,10 +44,12 @@ export default function Chat({roomId}:{roomId:string}){
                     ? msg.timestamp
                     : msg.timestamp instanceof Date
                         ? msg.timestamp.toISOString()
-                        : new Date(msg.timestamp).toISOString(),
+                        : typeof msg.timestamp === 'number'
+                            ? new Date(msg.timestamp).toISOString()
+                            : new Date(String(msg.timestamp)).toISOString(),
             })));
         }
-        const handleNewMessage = (messageData:Message) => {
+        const handleNewMessage = (messageData:MessageInput) => {
             const formattedMessage = {
                 id: messageData.id,
                 message: messageData.message,
@@ -49,7 +58,9 @@ export default function Chat({roomId}:{roomId:string}){
                     ? messageData.timestamp
                     : messageData.timestamp instanceof Date
                         ? messageData.timestamp.toISOString()
-                        : new Date(messageData.timestamp).toISOString(),
+                        : typeof messageData.timestamp === 'number'
+                            ? new Date(messageData.timestamp).toISOString()
+                            : new Date(String(messageData.timestamp)).toISOString(),
             };
             setMessages((prev) => [...prev, formattedMessage]);
         }
