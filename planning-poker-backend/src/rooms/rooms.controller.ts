@@ -33,7 +33,7 @@ export class RoomsController {
 
         const forwarded = req.get('X-Forwarded-Proto');
         const protocol = forwarded ? forwarded.split(',')[0] : (req.protocol || 'http');
-        const host = req.get('host:5173') || 'localhost:5173';
+        const host = req.get('host:5173') || process.env.APP_URL;
         const baseUrl = `${protocol}://${host}`;
         const shortLink = `${baseUrl}/room/${room.slug}`;
         return {
